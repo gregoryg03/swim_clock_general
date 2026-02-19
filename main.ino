@@ -1,55 +1,99 @@
-//Define Connections to 74HC595
+//First Iteration of Swim Clock Code to test on bench with Arduino Uno
 
-//ST_CP pin 12 (low is no output)
+#define segCount 4
+
+//TPIC (ShiftRegister)  Pins
+//RCK pin 12 (low is no output)
 const int latchPin = 10; //6 beetle
-//SH_CP pin 11
+
+//SRCK pin 11
 const int clockPin = 11; //20 beetle
-//DS pin 14
+
+//SER_IN pin 3
 const int dataPin = 12; //19 beetle
 
+//digit array 0-9 without DP
 int datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b01100110, 0b10110110, 0b10111110, 0b11100000, 0b11111110, 0b11100110};
 
+//updside down digit array 0-9 without DP
+int invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
+
+//Millis setup
+unsigned long prevMillis;
+unsigned long currentMillis;
+
+//Time
+unsigned long tcount;
+int shiftminsten = 0, shiftmins = 0, shiftsecsten = 0, shiftsecs = 0;
+int secs, secsten, mins, minsten;
 
 void setup() {
-  // put your setup code here, to run once:
+  // Arduino TPIC pins initilization to 0 with dp
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
+  int dp = 0;
+  for (int i = 0; i < segCount; i++) {
+    digitalWrite(latchPin, HIGH);
+    if (i%3 != 0 && i != 0)
+      dp = 1;
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[0]+dp);
+    digitalWrite(latchPin, LOW);
+    delay(1000);
+  }
 }
 
 void loop() {
-  // Count from 0 to 255 and display in binary
-//digitalWrite(latchPin, HIGH);
-//shiftOut(dataPin, clockPin, MSBFIRST, datArray[8] );
-//digitalWrite(latchPin, LOW);
-//
-  int i = 0;  
-  int dp = 0;
-//  for (i;i<10;i++) {
-//    digitalWrite(latchPin, HIGH);
-//    shiftOut(dataPin, clockPin, LSBFIRST, datArray[i]+dp);
-//    digitalWrite(latchPin, LOW);
-//    delay(1000);
-//   // dp ^= 1;
-//  }
-  int staticTest = 0b11111100111111001111110011111100;
-    digitalWrite(latchPin, HIGH);
-    shiftOut(dataPin, clockPin, LSBFIRST, staticTest);
+  // put your main code here, to run repeatedly:
+  currentMillis = millis();
+
+  setLCD();
+}
+
+void setLCD()
+{
+  if (currentMillis - prevMillis >= 1000) {
+    prevMillis += 1000;
+   
+    //int digitsarr[4];
+    tcount += 1;
+    shiftsecs += 1;
+
+    if (shiftsecs > 9) {
+      shiftsecs = 0;
+      shiftsecsten += 1;
+    }
+
+    if (shiftsecsten > 5) {
+      shiftsecsten = 0;
+      shiftmins += 1;
+    }
+
+    if (shiftmins > 9) {
+      shiftmins = 0;
+      shiftminsten += 1;
+    }
+
+    if (shiftminsten > 5) {
+      shiftsecs = 0;
+      shiftsecsten = 0;
+      shiftmins = 0;
+      shiftminsten = 0;
+    }
+
+  
+    //int i = 0;
+    //for (i; i < segCount; i++) {
+    
     digitalWrite(latchPin, LOW);
-    delay(1000);
-
-
-//  digitalWrite(latchPin, HIGH);
-//  shiftOut(dataPin, clockPin, LSBFIRST, datArray[1]);
-//  digitalWrite(latchPin, LOW);
-
-//  for (int numberToDisplay = 0; numberToDisplay < 256; numberToDisplay++) {
-//    digitalWrite(latchPin, LOW);
-//
-//    shiftOut(dataPin, clockPin, MSBFIRST, numberToDisplay);
-//
-//    digitalWrite(latchPin, HIGH);
-//
-//    delay(500);
-//  }
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+    
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins]+1);
+   
+    shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten]+1);
+   
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+    digitalWrite(latchPin, HIGH);
+  
+}
 }
