@@ -1,22 +1,18 @@
 #include <Arduino.h>
 
 //74HC165 Shirft Register
-
-//Clock Inhibit
-const int clk_inhib = 3;
-
 //Data Out Inverse
 const int data = 4;
-
 //Clock
 const int clock = 5;
-
 //Shift/Load High = Shift data & Low = Load Data
 const int mode = 6;
-
+//timekeeping
+unsigned long previous_millis, current_millis;
 
 // put function declarations here:
-byte read_button(byte);
+void fill_reg(void);
+byte read_button(byte, bool);
 
 
 void setup() {
@@ -38,38 +34,46 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-  byte btn_states;
- //byte mask = 0b01111100;
+  static byte btn_states;
 
+  current_millis = millis();
+
+  if (previous_millis - current_millis > 200) {
+    previous_millis += 200;
+    fill_reg();
+    btn_states = read_button(btn_states, true);
+    Serial.println(btn_states, BIN);
+  }
+}
+
+void fill_reg(void)
+{
   digitalWrite(mode, LOW);
   delayMicroseconds(5);
   digitalWrite(mode, HIGH);
   delayMicroseconds(5);
-
-  //digitalWrite(clk_inhib, LOW);
-
-  //btn_states = /* mask & */ shiftIn(data, clock, LSBFIRST);
-
-  btn_states = read_button(btn_states);
-
-  //digitalWrite(clk_inhib, HIGH);
-
-  Serial.println(btn_states, BIN);
-  delay(200);
-  
 }
 
-byte read_button(byte value)
+byte read_button(byte value, bool order)
 {
-
-  for (int i = 0; i < 8; i++) {
-    value <<= 1;
-    value |= digitalRead(data);
-    digitalWrite(clock, HIGH);
-    digitalWrite(clock, LOW);
+  value = 0b00000000;
+  switch (order) {
+    //MSBF
+    case true: 
+      for (int i = 0; i < 8; i++) {
+        value |= (digitalRead(data) << i);
+        digitalWrite(clock, HIGH);
+        digitalWrite(clock, LOW);
+      }
+    
+    //LSBF
+    default:
+      for (int i = 0; i < 8; i++) {
+        value |= (digitalRead(data) << (7-i));
+        digitalWrite(clock, HIGH);
+        digitalWrite(clock, LOW);
+      }
   }
-
   return value;
 }
 

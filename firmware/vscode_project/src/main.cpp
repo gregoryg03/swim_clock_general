@@ -113,7 +113,7 @@ void countDown()
 
   if (currentMillis - prevMillis >= 1000) {
    
-
+    prevMillis += 1000;
     digitalWrite(latchPin, HIGH);
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
     
@@ -130,7 +130,7 @@ void countDown()
     return;
     }
 
-    prevMillis += 1000;
+    
     if (shiftsecs > 0)
       shiftsecs--;
     else if (shiftsecsten > 0) {
