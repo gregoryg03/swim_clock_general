@@ -12,7 +12,7 @@ unsigned long previous_millis, current_millis;
 
 // put function declarations here:
 void fill_reg(void);
-byte read_button(byte, bool);
+byte read_button(bool);
 
 
 void setup() {
@@ -41,7 +41,7 @@ void loop() {
   if (previous_millis - current_millis > 200) {
     previous_millis += 200;
     fill_reg();
-    btn_states = read_button(btn_states, true);
+    btn_states = read_button(true);
     Serial.println(btn_states, BIN);
   }
 }
@@ -54,26 +54,29 @@ void fill_reg(void)
   delayMicroseconds(5);
 }
 
-byte read_button(byte value, bool order)
+byte read_button(bool order)
 {
-  value = 0b00000000;
+  byte value = 0b00000000;
   switch (order) {
-    //MSBF
+    //LSBF
     case true: 
       for (int i = 0; i < 8; i++) {
         value |= (digitalRead(data) << i);
         digitalWrite(clock, HIGH);
         digitalWrite(clock, LOW);
       }
+    break;
     
-    //LSBF
+    //MSBF
     default:
       for (int i = 0; i < 8; i++) {
         value |= (digitalRead(data) << (7-i));
         digitalWrite(clock, HIGH);
         digitalWrite(clock, LOW);
       }
+    break;
   }
+
   return value;
 }
 
