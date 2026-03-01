@@ -7,7 +7,7 @@
 //RCK pin 12 (low is no output)
 const int latchPin = 10; //6 beetle
 
-//SRCK pin 11
+//SRCK pin 13
 const int clockPin = 11; //20 beetle
 
 //SER_IN pin 3
@@ -18,6 +18,10 @@ const int datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b0110
 
 //updside down digit array 0-9 without DP
 const int invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
+
+//Testing intervals to cycle through (sec)
+const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
+int intevaltime = 0;
 
 //Millis setup
 unsigned long prevMillis;
@@ -36,13 +40,18 @@ void setup() {
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
+
+  //serial
+  Serial.begin(9600);
   
   //Set Diplay Blank
   for (int i = 0; i < segCount; i++) {
     digitalWrite(latchPin, HIGH);
     shiftOut(dataPin, clockPin, LSBFIRST, BLANK);
   }
-  digitalWrite(latchPin, LOW)
+  digitalWrite(latchPin, LOW);
+
+  delay(1000);
   
   for (int i = 0; i < segCount; i++) {
     digitalWrite(latchPin, HIGH);
@@ -58,12 +67,88 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  currentMillis = millis(); //Check what prevmillis is when setLED is called. Somehow starting at 4?
+  currentMillis = millis();
 
-  setLED();
+  getInterval();
+  countDown();
+  //countUp();
+  
 }
 
-void setLED()
+void getInterval()
+{
+  static int i = 0;
+  int curInt = timearr[i++];
+
+  if (curInt > 599) {
+    shiftminsten = curInt % 600;
+    curInt -= shiftminsten * 600;
+
+  if (curInt > 59) {
+    shiftmins = curInt % 60;
+    curInt -= shiftmins * 60;
+  }
+
+  if (curInt > 9) {
+    shiftsecsten = curInt % 10;
+    curInt -= shiftsecsten * 10;
+  }
+
+  shiftsecs = curInt;
+  }
+  
+  Serial.print(shiftminsten);
+  Serial.print(", ");
+  Serial.print(shiftmins);
+  Serial.print(", ");
+  Serial.print(shiftsecsten);
+  Serial.print(", ");
+  Serial.println(shiftsecs);
+}
+
+
+void countDown()
+{
+  bool flag = false;
+  if (currentMillis - prevMillis >= 1000) {
+    prevMillis += 1000;
+    if (shiftsecs > 0)
+      shiftsecs--;
+    else if (shiftsecsten > 0) {
+      shiftsecsten--;
+      shiftsecs = 9;
+    }
+    else if (shiftmins > 0) {
+      shiftmins--;
+      shiftsecsten = 5;
+    }
+    else if (shiftminsten > 0) {
+      shiftminsten--;
+      shiftmins = 9;
+    }
+    else
+      flag = true;
+ 
+ 
+  digitalWrite(latchPin, HIGH);
+  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
+ 
+  shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
+ 
+  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+  digitalWrite(latchPin, LOW);
+
+  if (flag){
+    Serial.println("Done Display");
+    return;
+  }
+
+  }
+}
+
+void countUp()
 {
   if (currentMillis - prevMillis >= 1000) {
     prevMillis += 1000;

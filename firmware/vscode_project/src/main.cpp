@@ -37,6 +37,7 @@ int shiftminsten = 0, shiftmins = 0, shiftsecsten = 0, shiftsecs = 0;
 int secs, secsten, mins, minsten;
 
 bool counting = false;
+bool flag = false;
 
 void setup() {
   // Arduino TPIC pins initilization to 0 with dp
@@ -92,6 +93,7 @@ void getInterval()
     shiftsecs = seconds % 10;
 
     counting = true;
+    flag = false;
     
     
     // Serial.print(shiftminsten);
@@ -108,8 +110,26 @@ void getInterval()
 
 void countDown()
 {
-  bool flag = false;
+
   if (currentMillis - prevMillis >= 1000) {
+   
+
+    digitalWrite(latchPin, HIGH);
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+    
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
+  
+    shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
+  
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+    digitalWrite(latchPin, LOW);
+
+    if (flag){
+    Serial.println("Done Display");
+    counting = false;
+    return;
+    }
+
     prevMillis += 1000;
     if (shiftsecs > 0)
       shiftsecs--;
@@ -129,22 +149,6 @@ void countDown()
     else {
       flag = true;
     }
- 
-  digitalWrite(latchPin, HIGH);
-  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
-  
-  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
- 
-  shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
- 
-  shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
-  digitalWrite(latchPin, LOW);
-
-  if (flag){
-    Serial.println("Done Display");
-    counting = false;
-    return;
-  }
 
   }
 }
