@@ -7,6 +7,7 @@
 #define BLANK 0
 
 void displayinit(uint8_t, uint8_t, uint8_t);
+
 void getInterval(void);
 void countDown(void);
 void countUp(void);

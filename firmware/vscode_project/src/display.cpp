@@ -86,7 +86,7 @@ void countDown()
 {
   static const byte dp = 1;
 
-    digitalWrite(latchPin, HIGH);
+    digitalWrite(latchPin, LOW);
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
     
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
@@ -94,7 +94,7 @@ void countDown()
     shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
   
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
-    digitalWrite(latchPin, LOW);
+    digitalWrite(latchPin, HIGH);
 
     if (--status == 0) {
       flag = true;
@@ -150,7 +150,7 @@ void countUp()
     }
 
     
-    digitalWrite(latchPin, HIGH);
+    digitalWrite(latchPin, LOW);
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
     
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
@@ -158,5 +158,5 @@ void countUp()
     shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
    
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
-    digitalWrite(latchPin, LOW);
+    digitalWrite(latchPin, HIGH);
 }

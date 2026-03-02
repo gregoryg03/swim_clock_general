@@ -3,8 +3,10 @@
 #include <functions.h>
 #include <button.h>
 
-//Millis setup
-
+//System States
+bool pauseState = false;
+bool pauseFalling = false;
+bool btnEdgeDetect = false;
 
 //Btn States
 static byte btn_states = 0xFF;
@@ -34,30 +36,50 @@ void loop() {
 
   static unsigned long dispMillis, btnMillis;
   static unsigned long currentMillis;
+  static unsigned int remTime;
 
   currentMillis = millis();
 
-  
-  getInterval();
+  btn_states = read_button(false);
 
-  if (currentMillis - dispMillis >= 1000) {
-    dispMillis += 1000;
-    countDown();
-    Serial.println("Done Display");
+  // if (currentMillis - btnMillis > 200) {
+  //   btnMillis += 200;
+  //   Serial.println(btn_states, BIN);
+  // }
+  
+  //Edge detect for pause button
+  bool pauseBtn = (btn_states >> 7) & 1;
+  if (pauseBtn && !btnEdgeDetect) {
+      Serial.println("Flip");
+      pauseState ^= 1;
+      pauseFalling = true;
+      if (pauseState == 1) {
+        remTime = currentMillis - dispMillis;
+      }
   }
 
+  btnEdgeDetect = pauseBtn;
+
+
+  if (!pauseState) {
+    getInterval();
+    if (pauseFalling) {
+      dispMillis = currentMillis - remTime;
+      pauseFalling = false;
+    }
+    if (currentMillis - dispMillis >= 1000) {
+      dispMillis += 1000;
+      countDown();
+      Serial.println("Done Display");
+    }
+  }
   // if (currentMillis - dispMillis >= 1000) {
   //   dispMillis += 1000;
   // countUp();
   // } 
-
-  btn_states = read_button(false);
-
-  if (currentMillis - btnMillis > 200) {
-    btnMillis += 200;
-    Serial.println(btn_states, BIN);
-  }
 }
+
+
 
 
 

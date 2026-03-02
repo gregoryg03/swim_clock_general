@@ -62,7 +62,7 @@ byte read_button(bool order)
       break;
   }
 
-  return update_state(value);
+  return ~update_state(value);
 }
 
 byte update_state(byte value)
