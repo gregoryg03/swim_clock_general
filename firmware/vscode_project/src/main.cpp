@@ -4,6 +4,14 @@
 #include <button.h>
 
 //System States
+
+// enum State {
+//   countUp,
+//   countDown,
+//   paused,
+//   counting
+// };
+
 bool pauseState = false;
 bool pauseFalling = false;
 bool btnEdgeDetect = false;
