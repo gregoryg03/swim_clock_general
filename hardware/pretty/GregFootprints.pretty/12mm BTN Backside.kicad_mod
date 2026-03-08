@@ -1,0 +1,227 @@
+(footprint "12mm BTN Backside"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Generic SW PUSH 12mm, e.g https://sten-eswitch-13110800-production.s3.amazonaws.com/system/asset/product_line/data_sheet/143/TL1100.pdf")
+	(tags "tact sw push 12mm")
+	(property "Reference" "REF**"
+		(at 3.5 -6 0)
+		(layer "F.SilkS")
+		(uuid "d1cacafe-8a76-44dc-b95c-ef5134b08eae")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "12mm BTN Backside"
+		(at 6.37 10.5 0)
+		(layer "F.Fab")
+		(uuid "8d5892e0-1c39-434e-bda6-231825380cdd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "44494a51-e5c9-4c05-990e-8aaac319f518")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1420f15e-227f-4b2c-8622-cccef4faba2c")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start 0.1 -3.6)
+		(end 0.1 -1.1)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "a9b8ec34-baf4-4f52-9d95-e336055d0e96")
+	)
+	(fp_line
+		(start 0.1 1.2)
+		(end 0.1 3.8)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "a511bcbb-8589-413d-9202-0d5ff7cd3cf8")
+	)
+	(fp_line
+		(start 0.1 6.1)
+		(end 0.1 8.6)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "ebb7ae14-ae89-46a9-bbd4-d2d726c8ab0e")
+	)
+	(fp_line
+		(start 0.1 8.6)
+		(end 12.4 8.6)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "759ddf2d-ee5b-4cb9-819f-d92b4343f40d")
+	)
+	(fp_line
+		(start 12.4 -3.6)
+		(end 0.1 -3.6)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "11bf2030-198d-4649-8349-b91fa0cf7f92")
+	)
+	(fp_line
+		(start 12.4 -1.1)
+		(end 12.4 -3.6)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "c4e2fc63-0f51-4fe7-b675-52168442fadc")
+	)
+	(fp_line
+		(start 12.4 3.8)
+		(end 12.4 1.2)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "23046a10-0a48-4e62-ae87-a54c934196db")
+	)
+	(fp_line
+		(start 12.4 8.6)
+		(end 12.4 6.1)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "B.SilkS")
+		(uuid "b96e4ebf-9fb2-4977-bc42-dc4110fb0ef3")
+	)
+	(fp_circle
+		(center 6.2 2.564466)
+		(end 8.7 0.064466)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "B.SilkS")
+		(uuid "b3b1004c-090b-4ce9-8dff-577a85dcdcd8")
+	)
+	(fp_rect
+		(start -1.5 -4.75)
+		(end 14 9.75)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "c795058e-1fc6-462f-93f5-fa9da6f70067")
+	)
+	(fp_text user "BTN"
+		(at 7.6 8 0)
+		(unlocked yes)
+		(layer "B.SilkS")
+		(uuid "b55512d9-7f08-476c-ac4f-91eaa3b1756b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+			(justify left bottom mirror)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 6.25 2.5 0)
+		(layer "F.Fab")
+		(uuid "53b2306c-c219-4256-8d61-863213bd5b57")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole oval
+		(at 0 0)
+		(size 3.2 1.9)
+		(drill 1.3)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "03467557-4b61-4e5f-8f43-7fe2b230174f")
+	)
+	(pad "1" thru_hole oval
+		(at 12.5 0)
+		(size 3.2 1.9)
+		(drill 1.3)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "8c01209f-1a52-46c0-a819-d3bb2b9ccc40")
+	)
+	(pad "2" thru_hole oval
+		(at 0 5)
+		(size 3.2 1.9)
+		(drill 1.3)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "b2e72713-cc9e-47df-bc8c-1b7ab01b813e")
+	)
+	(pad "2" thru_hole oval
+		(at 12.5 5)
+		(size 3.2 1.9)
+		(drill 1.3)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "812c5867-c8b4-408e-b964-8215697f175a")
+	)
+	(embedded_fonts no)
+	(model "${KICAD9_3DMODEL_DIR}/Button_Switch_THT.3dshapes/SW_PUSH-12mm.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
