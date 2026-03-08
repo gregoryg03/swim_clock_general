@@ -41,46 +41,34 @@ void fill_reg(void)
 event buttons::poll()
 {
   byte reading = read_button(false);
-  bool btns[5] = edge_detect(reading);
+  byte pressed = edge_detect(reading);
 
-  if (btns[0])
+  if ((pressed >> 0) & 1)
     return event::btn1press;
 
-  if (btns[1])
+  if ((pressed >> 1) & 1)
     return event::btn2press;
   
-  if (btns[2])
+  if ((pressed >> 2) & 1)
     return event::btn3press;
   
-  if (btns[3])
+  if ((pressed >> 3) & 1)
     return event::btn4press;
 
-  if (btns[4])
+  if ((pressed >> 4) & 1)
     return event::btn5press;
   
   return event::none;
 }
 
 //Detect when the button is pressed to change state (if not it will bounce)
-bool edge_detect(byte reading)
+byte edge_detect(byte reading)
 {
-  static bool status[BTN_COUNT] = {false};
+  static byte btnEdgeDetect = 0;
+  byte output = reading && !btnEdgeDetect;
+  btnEdgeDetect = reading;
 
-  for (int i = 0; i < BTN_COUNT; i++) {
-    status[i] = (reading >> i) & 1;
-  }
-
-  bool pauseBtn = (btn_states >> 7) & 1;
-  if (pauseBtn && !btnEdgeDetect) {
-      Serial.println("Flip");
-      pauseState ^= 1;
-      pauseFalling = true;
-      if (pauseState == 1) {
-        remTime = currentMillis - dispMillis;
-      }
-  }
-
-  btnEdgeDetect = pauseBtn;
+  return output;
 }
 
 
