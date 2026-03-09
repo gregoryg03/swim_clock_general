@@ -1,4 +1,4 @@
-#include <functions.h>
+#include "functions.h"
 
 //TPIC (ShiftRegister)  Pins
 //RCK pin 12 (low is no output)
@@ -15,6 +15,9 @@ const int datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b0110
 
 //updside down digit array 0-9 without DP
 const int invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
+
+//Random display items       d            n           u         p            g
+const int symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001100, 0b11110110};
 
 //Testing intervals to cycle through (sec)
 const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};

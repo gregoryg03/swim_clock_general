@@ -1,37 +1,61 @@
 #include "events.h"
 
-
-
-static unsigned long dispMillis, btnMillis;
 static unsigned long currentMillis;
-static unsigned int remTime;
+static unsigned long nextInterval;
+static unsigned long timeRemaining = 1000; //(Starts paused, so this will set initial time)
+bool pausedFlag = true;
 
+mode handle_events(event btnPressed)
+{
   currentMillis = millis();
-
-  btn_states = read_button(false);
-
-  // if (currentMillis - btnMillis > 200) {
-  //   btnMillis += 200;
-  //   Serial.println(btn_states, BIN);
-  // }
-  
+  set_action(btnPressed);
+  perform_action();
 
 
-//Move this to the events file when created
-  if (!pauseState) {
-    getInterval();
-    if (pauseFalling) {
-      dispMillis = currentMillis - remTime;
-      pauseFalling = false;
-    }
-    if (currentMillis - dispMillis >= 1000) {
-      dispMillis += 1000;
-      countDown();
-      Serial.println("Done Display");
-    }
+
+}
+
+void set_action (event btnPressed)
+{
+  switch (btnPressed) {
+    case event::btn1press:
+      if (action == actions::running) {
+        action = actions::paused;
+        remTime();
+      }
+      else if (action == actions::paused)
+        action = actions::running;
+      break;
+    default:
+      break;
   }
+}
 
-  // if (currentMillis - dispMillis >= 1000) {
-  //   dispMillis += 1000;
-  // countUp();
-  // } 
+void perform_action(void)
+{
+  switch (action) {
+    case actions::running:
+      getInterval();
+      if (pausedFlag) {
+        nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+        pausedFlag = false;
+      }
+      if (currentMillis > nextInterval) {
+        nextInterval += 1000;
+        if (m == mode::countDown) 
+          countDown();
+        else if (m == mode::countUp)
+          countUp();
+      }
+  }
+}
+
+void remTime(void)
+{
+  timeRemaining = nextInterval - currentMillis;
+  pausedFlag = true;
+}
+
+
+//  Serial.println(btn_states, BIN);
+//  Serial.println("Done Display");

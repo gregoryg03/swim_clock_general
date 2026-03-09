@@ -2,6 +2,7 @@
 #define EVENTS_H
 
 #include <Arduino.h>
+#include "functions.h"
 
 enum class event {
     none,
@@ -19,6 +20,20 @@ enum class mode {
     dataEntry
 };
 
-void handle_events(void);
+enum class actions {
+    running,
+    paused,
+    cycle,
+    enter
+};
+
+mode handle_events(event);
+
+void set_action (event);
+
+void perform_action(void);
+
+actions action = actions::paused;
+mode m = mode::idle;
 
 #endif
