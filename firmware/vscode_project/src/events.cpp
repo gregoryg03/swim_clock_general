@@ -10,9 +10,7 @@ mode handle_events(event btnPressed)
   currentMillis = millis();
   set_action(btnPressed);
   perform_action();
-
-
-
+  return m;
 }
 
 void set_action (event btnPressed)
@@ -31,6 +29,8 @@ void set_action (event btnPressed)
   }
 }
 
+//Add the mode swiching functionallity, will need to figure out long press (might have to change edge detect or add another condition)
+
 void perform_action(void)
 {
   switch (action) {
@@ -47,6 +47,8 @@ void perform_action(void)
         else if (m == mode::countUp)
           countUp();
       }
+    default:
+      break;
   }
 }
 

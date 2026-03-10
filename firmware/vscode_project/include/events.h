@@ -33,7 +33,10 @@ void set_action (event);
 
 void perform_action(void);
 
-actions action = actions::paused;
-mode m = mode::idle;
+extern actions action;
+
+extern mode m;
+
+void remTime(void);
 
 #endif

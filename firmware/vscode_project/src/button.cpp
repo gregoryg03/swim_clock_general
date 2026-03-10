@@ -9,7 +9,6 @@ static int CLOCK_PIN;
 static int MODE_PIN;
 
 //Debounce
-static byte btn_states;
 static byte last_read = 0xFF;
 static byte last_state = 0xFF;
 static unsigned long lastDebounce[BTN_COUNT] = {0};
@@ -42,6 +41,8 @@ event buttons::poll()
 {
   byte reading = read_button(false);
   byte pressed = edge_detect(reading);
+
+  //Serial.println("polling");
 
   if ((pressed >> 0) & 1)
     return event::btn1press;

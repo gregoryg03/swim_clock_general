@@ -1,23 +1,9 @@
 //First Iteration of Swim Clock Code to test on bench with Arduino Uno
 
-#include <functions.h>
-#include <button.h>
+#include "events.h"
+#include "functions.h"
+#include "button.h"
 
-//System States
-
-// enum State {
-//   countUp,
-//   countDown,
-//   paused,
-//   counting
-// };
-
-bool pauseState = false;
-bool pauseFalling = false;
-bool btnEdgeDetect = false;
-
-//Btn States
-static byte btn_states = 0xFF;
 
 //Display Pins
 const uint8_t LATCH_PIN = 10;
@@ -28,6 +14,10 @@ const uint8_t DISP_DATA_PIN = 12;
 const uint8_t DATA_PIN = 4;
 const uint8_t CLOCK_PIN = 5;
 const uint8_t MODE_PIN = 6;
+
+//Initilize Globals
+actions action = actions::paused;
+mode m = mode::idle;
 
 void setup() 
 {
@@ -41,50 +31,46 @@ void setup()
 
 void loop() {
   // put your main code here, to run repeatedly:
+  buttons btn;
+  static event e;
+  e = btn.poll();
 
-  static unsigned long dispMillis, btnMillis;
-  static unsigned long currentMillis;
-  static unsigned int remTime;
+  switch (e) {
+    case event::btn1press:
+      Serial.println("Btn1");
+      break;
+    case event::btn2press:
+      Serial.println("Btn2");
+      break;  
+    case event::btn3press:
+      Serial.println("Btn3");
+      break;
+    case event::btn4press:
+      Serial.println("Btn4");
+      break;
+    case event::btn5press:
+      Serial.println("Btn5");
+      break;
+    case event::none:
+      Serial.println("None");
+      break;
+    default:
+      Serial.println("Dafa");
+      break;
+  }
 
-  currentMillis = millis();
-
-  btn_states = read_button(false);
-
-  // if (currentMillis - btnMillis > 200) {
-  //   btnMillis += 200;
-  //   Serial.println(btn_states, BIN);
-  // }
+  if (e != event::none) {
+    m = handle_events(e);
+  }
   
-  //Edge detect for pause button
-  bool pauseBtn = (btn_states >> 7) & 1;
-  if (pauseBtn && !btnEdgeDetect) {
-      Serial.println("Flip");
-      pauseState ^= 1;
-      pauseFalling = true;
-      if (pauseState == 1) {
-        remTime = currentMillis - dispMillis;
-      }
-  }
+  //Serial.println("Main loop");
+  // switch (m) {
+  //   case mode::idle:
+  //     break;
+    
+  //   case mode::countUp:
+  // }
 
-  btnEdgeDetect = pauseBtn;
-
-
-  if (!pauseState) {
-    getInterval();
-    if (pauseFalling) {
-      dispMillis = currentMillis - remTime;
-      pauseFalling = false;
-    }
-    if (currentMillis - dispMillis >= 1000) {
-      dispMillis += 1000;
-      countDown();
-      Serial.println("Done Display");
-    }
-  }
-  // if (currentMillis - dispMillis >= 1000) {
-  //   dispMillis += 1000;
-  // countUp();
-  // } 
 }
 
 
