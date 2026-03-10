@@ -66,7 +66,7 @@ event buttons::poll()
 byte edge_detect(byte reading)
 {
   static byte btnEdgeDetect = 0;
-  byte output = reading && !btnEdgeDetect;
+  byte output = reading & !btnEdgeDetect;
   btnEdgeDetect = reading;
 
   return output;
@@ -97,6 +97,8 @@ byte read_button(bool order)
       break;
   }
 
+  //Serial.println(value);
+  
   return ~update_state(value);
 }
 

@@ -16,8 +16,8 @@ const uint8_t CLOCK_PIN = 5;
 const uint8_t MODE_PIN = 6;
 
 //Initilize Globals
-actions action = actions::paused;
-mode m = mode::idle;
+actions action = actions::running;
+mode m = mode::countDown;
 
 void setup() 
 {
@@ -35,47 +35,55 @@ void loop() {
   static event e;
   e = btn.poll();
 
-  switch (e) {
-    case event::btn1press:
-      Serial.println("Btn1");
-      break;
-    case event::btn2press:
-      Serial.println("Btn2");
-      break;  
-    case event::btn3press:
-      Serial.println("Btn3");
-      break;
-    case event::btn4press:
-      Serial.println("Btn4");
-      break;
-    case event::btn5press:
-      Serial.println("Btn5");
-      break;
-    case event::none:
-      Serial.println("None");
-      break;
-    default:
-      Serial.println("Dafa");
-      break;
-  }
 
   if (e != event::none) {
     m = handle_events(e);
   }
   
-  //Serial.println("Main loop");
-  // switch (m) {
-  //   case mode::idle:
-  //     break;
+  //Try to remove handle_event calls below  
+  e = event::none;
+ 
+  switch (m) {
+    case mode::idle:
+      handle_events(e);
+      break;
     
-  //   case mode::countUp:
-  // }
+    case mode::countDown:
+      handle_events(e);
+      if (action == actions::running)
+      break;
+
+    default:
+      break;
+  }
 
 }
 
+ // Serial.println("Main loop");
 
+//Debugging
 
-
-
-
+  // switch (e) {
+  //   case event::btn1press:
+  //     Serial.println("Btn1");
+  //     break;
+  //   case event::btn2press:
+  //     Serial.println("Btn2");
+  //     break;  
+  //   case event::btn3press:
+  //     Serial.println("Btn3");
+  //     break;
+  //   case event::btn4press:
+  //     Serial.println("Btn4");
+  //     break;
+  //   case event::btn5press:
+  //     Serial.println("Btn5");
+  //     break;
+  //   case event::none:
+  //     Serial.println("None");
+  //     break;
+  //   default:
+  //     Serial.println("Dafa");
+  //     break;
+  // }
 

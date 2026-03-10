@@ -4,11 +4,14 @@ static unsigned long currentMillis;
 static unsigned long nextInterval;
 static unsigned long timeRemaining = 1000; //(Starts paused, so this will set initial time)
 bool pausedFlag = true;
+mode last_mode;
 
 mode handle_events(event btnPressed)
 {
   currentMillis = millis();
-  set_action(btnPressed);
+  if (btnPressed != event::none) {
+    set_action(btnPressed);
+  }
   perform_action();
   return m;
 }
@@ -19,10 +22,14 @@ void set_action (event btnPressed)
     case event::btn1press:
       if (action == actions::running) {
         action = actions::paused;
+        last_mode = m;
         remTime();
+
       }
-      else if (action == actions::paused)
+      else if (action == actions::paused) {
         action = actions::running;
+        m = last_mode;
+      }
       break;
     default:
       break;
@@ -47,6 +54,7 @@ void perform_action(void)
         else if (m == mode::countUp)
           countUp();
       }
+      break;
     default:
       break;
   }

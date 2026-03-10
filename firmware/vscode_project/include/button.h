@@ -5,7 +5,7 @@
 #include "events.h"
 
 #define BTN_COUNT 8
-#define DEBOUNCE 20 //time in ms
+#define DEBOUNCE 30 //time in ms
 
 class buttons {
     public: 
