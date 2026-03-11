@@ -22,13 +22,17 @@ void set_action (event btnPressed)
     case event::btn1press:
       if (action == actions::running) {
         action = actions::paused;
-        last_mode = m;
         remTime();
 
       }
       else if (action == actions::paused) {
         action = actions::running;
-        m = last_mode;
+      }
+      break;
+    case event::btn2press:
+      if (action == actions::paused) {
+        m = next_mode(m);
+        Serial.println((int)m);
       }
       break;
     default:
@@ -42,6 +46,7 @@ void perform_action(void)
 {
   switch (action) {
     case actions::running:
+      if (m == mode::countDown) {
       getInterval();
       if (pausedFlag) {
         nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
@@ -49,10 +54,13 @@ void perform_action(void)
       }
       if (currentMillis > nextInterval) {
         nextInterval += 1000;
-        if (m == mode::countDown) 
-          countDown();
-        else if (m == mode::countUp)
-          countUp();
+        countDown();
+      }
+    }
+      else if (m == mode::countUp)
+      if (currentMillis > nextInterval) {
+        nextInterval += 1000;
+        countUp();
       }
       break;
     default:
@@ -66,6 +74,23 @@ void remTime(void)
   pausedFlag = true;
 }
 
+mode next_mode(mode modein)
+{
+  switch (modein) {
+    case mode::countDown: 
+      disp(modein);
+      return mode::countUp;
+      break;
+    case mode::countUp:
+      disp(modein);
+      return mode::dataEntry;
+      break;
+    case mode::dataEntry:
+      disp(modein);
+      return mode::countDown;
+      break;
+  }
+}
 
 //  Serial.println(btn_states, BIN);
 //  Serial.println("Done Display");

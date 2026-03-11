@@ -1,4 +1,5 @@
 #include "functions.h"
+#include "events.h"
 
 //TPIC (ShiftRegister)  Pins
 //RCK pin 12 (low is no output)
@@ -17,7 +18,8 @@ const int datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b0110
 const int invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
 
 //Random display items       d            n           u         p            g
-const int symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001100, 0b11110110};
+const int symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110};
+const int symArrayinv[5] = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110};
 
 //Testing intervals to cycle through (sec)
 const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
@@ -162,4 +164,46 @@ void countUp()
    
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
     digitalWrite(latchPin, HIGH);
+}
+
+void disp(mode setIcon)
+{
+  switch (setIcon) {
+    case mode::countDown:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[0]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[1]);
+      digitalWrite(latchPin, HIGH);
+    
+      break;
+    case mode::countUp:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[2]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[3]);
+      digitalWrite(latchPin, HIGH);
+
+      break;
+    case mode::dataEntry:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[3]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[4]);
+      digitalWrite(latchPin, HIGH);
+
+      break;
+  }
 }

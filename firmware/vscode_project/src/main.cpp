@@ -43,11 +43,7 @@ void loop() {
   //Try to remove handle_event calls below  
   e = event::none;
  
-  switch (m) {
-    case mode::idle:
-      handle_events(e);
-      break;
-    
+  switch (m) {  
     case mode::countDown:
       handle_events(e);
       if (action == actions::running)

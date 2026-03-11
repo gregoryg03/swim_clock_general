@@ -14,7 +14,6 @@ enum class event {
     };
 
 enum class mode {
-    idle,
     countUp,
     countDown,
     dataEntry
@@ -38,5 +37,9 @@ extern actions action;
 extern mode m;
 
 void remTime(void);
+
+mode next_mode(mode);
+
+void disp(mode);
 
 #endif
