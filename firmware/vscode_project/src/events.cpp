@@ -3,16 +3,25 @@
 static unsigned long currentMillis;
 static unsigned long nextInterval;
 static unsigned long timeRemaining = 1000; //(Starts paused, so this will set initial time)
-bool pausedFlag = true;
+bool pausedFlag = false;
 mode last_mode;
+
+modeState modeTable[] = {
+    {enter_countUp, run_countUp, exit_countUp},
+    {enter_countDown, run_countDown, exit_countDown},
+    {enter_dataEntry, run_dataEntry, exit_dataEntry}
+};
 
 mode handle_events(event btnPressed)
 {
+
   currentMillis = millis();
   if (btnPressed != event::none) {
     set_action(btnPressed);
   }
-  perform_action();
+  
+  if (action == actions::running)
+    modeTable[(int)m].run();
   return m;
 }
 
@@ -31,7 +40,11 @@ void set_action (event btnPressed)
       break;
     case event::btn2press:
       if (action == actions::paused) {
-        m = next_mode(m);
+        last_mode = m;
+        next_mode(m);
+        if (m != last_mode) {
+            change_state(last_mode);
+        }
         Serial.println((int)m);
       }
       break;
@@ -40,33 +53,6 @@ void set_action (event btnPressed)
   }
 }
 
-//Add the mode swiching functionallity, will need to figure out long press (might have to change edge detect or add another condition)
-
-void perform_action(void)
-{
-  switch (action) {
-    case actions::running:
-      if (m == mode::countDown) {
-      getInterval();
-      if (pausedFlag) {
-        nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
-        pausedFlag = false;
-      }
-      if (currentMillis > nextInterval) {
-        nextInterval += 1000;
-        countDown();
-      }
-    }
-      else if (m == mode::countUp)
-      if (currentMillis > nextInterval) {
-        nextInterval += 1000;
-        countUp();
-      }
-      break;
-    default:
-      break;
-  }
-}
 
 void remTime(void)
 {
@@ -74,23 +60,72 @@ void remTime(void)
   pausedFlag = true;
 }
 
-mode next_mode(mode modein)
+void next_mode(mode modein)
 {
-  switch (modein) {
-    case mode::countDown: 
-      disp(modein);
-      return mode::countUp;
-      break;
-    case mode::countUp:
-      disp(modein);
-      return mode::dataEntry;
-      break;
-    case mode::dataEntry:
-      disp(modein);
-      return mode::countDown;
-      break;
-  }
+  m = static_cast<mode>(((static_cast<int>(m) + 1) %
+    static_cast<int>(mode::MAX_MODES)));
+  disp(m);
 }
 
-//  Serial.println(btn_states, BIN);
-//  Serial.println("Done Display");
+void change_state(mode prevMode)
+{
+  modeTable[(int)prevMode].exit();
+  last_mode = m;
+  modeTable[(int)m].enter();
+}
+
+void enter_countUp()
+{
+  reset_disp();
+}
+void run_countUp()
+{
+  if (pausedFlag) {
+  nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+  pausedFlag = false;
+  }
+
+  if (currentMillis > nextInterval) {
+  nextInterval += 1000;
+  countUp();
+  }
+}
+void exit_countUp()
+{
+  ;
+}
+
+void enter_countDown()
+{
+  reset_disp();
+}
+void run_countDown()
+{
+  getInterval();
+
+  if (pausedFlag) {
+  nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+  pausedFlag = false;
+  }
+
+  if (currentMillis > nextInterval) {
+    nextInterval += 1000;
+    countDown();
+  }
+}
+void exit_countDown()
+{
+  ;
+}
+void enter_dataEntry()
+{
+  ;
+}
+void run_dataEntry()
+{
+  ;
+}
+void exit_dataEntry()
+{
+  ;
+}

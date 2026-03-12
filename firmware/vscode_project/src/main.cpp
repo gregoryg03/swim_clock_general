@@ -17,7 +17,7 @@ const uint8_t MODE_PIN = 6;
 
 //Initilize Globals
 actions action = actions::running;
-mode m = mode::countDown;
+mode m = mode::countUp;
 
 void setup() 
 {
@@ -32,54 +32,14 @@ void setup()
 void loop() {
   // put your main code here, to run repeatedly:
   buttons btn;
-  static event e;
-  e = btn.poll();
+  static event buttonPress;
+  static mode currentMode = m;
 
+  //Read the buttons
+  buttonPress = btn.poll();
 
-  if (e != event::none) {
-    m = handle_events(e);
-  }
-  
-  //Try to remove handle_event calls below  
-  e = event::none;
- 
-  switch (m) {  
-    case mode::countDown:
-      handle_events(e);
-      if (action == actions::running)
-      break;
-
-    default:
-      break;
-  }
-
+  //Perform action based on buttons and clock
+  currentMode = handle_events(buttonPress);
 }
 
- // Serial.println("Main loop");
-
-//Debugging
-
-  // switch (e) {
-  //   case event::btn1press:
-  //     Serial.println("Btn1");
-  //     break;
-  //   case event::btn2press:
-  //     Serial.println("Btn2");
-  //     break;  
-  //   case event::btn3press:
-  //     Serial.println("Btn3");
-  //     break;
-  //   case event::btn4press:
-  //     Serial.println("Btn4");
-  //     break;
-  //   case event::btn5press:
-  //     Serial.println("Btn5");
-  //     break;
-  //   case event::none:
-  //     Serial.println("None");
-  //     break;
-  //   default:
-  //     Serial.println("Dafa");
-  //     break;
-  // }
 

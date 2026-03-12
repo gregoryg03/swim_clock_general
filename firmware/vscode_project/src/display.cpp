@@ -37,6 +37,7 @@ bool counting = false;
 bool flag = false;
 static int curInt, status;
 
+
 void displayinit(uint8_t LATCH, uint8_t CLOCK, uint8_t DATA)
 {
   // Arduino TPIC pins initilization to 0 with dp
@@ -133,6 +134,7 @@ void countDown()
 
 void countUp()
 {
+  static const int dp = 1;
     shiftsecs += 1;
 
     if (shiftsecs > 9) {
@@ -206,4 +208,12 @@ void disp(mode setIcon)
 
       break;
   }
+}
+
+void reset_disp()
+{
+  shiftsecs = 0;
+  shiftsecsten = 0;
+  shiftmins = 0;
+  shiftminsten = 0;
 }

@@ -16,8 +16,30 @@ enum class event {
 enum class mode {
     countUp,
     countDown,
-    dataEntry
+    dataEntry,
+    MAX_MODES
 };
+
+struct modeState {
+    void(*enter)();
+    void(*run)();
+    void(*exit)();
+};
+
+
+void enter_countUp();
+void run_countUp();
+void exit_countUp();
+
+void enter_countDown();
+void run_countDown();
+void exit_countDown();
+
+void enter_dataEntry();
+void run_dataEntry();
+void exit_dataEntry();
+
+extern modeState modeTable[];
 
 enum class actions {
     running,
@@ -26,11 +48,11 @@ enum class actions {
     enter
 };
 
+
+
 mode handle_events(event);
 
 void set_action (event);
-
-void perform_action(void);
 
 extern actions action;
 
@@ -38,8 +60,12 @@ extern mode m;
 
 void remTime(void);
 
-mode next_mode(mode);
+void next_mode(mode);
 
 void disp(mode);
+
+void reset_disp();
+
+void change_state(mode);
 
 #endif
