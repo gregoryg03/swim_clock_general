@@ -3,17 +3,21 @@
 #include "events.h"
 #include "functions.h"
 #include "button.h"
+#include "sd2.h"
 
 
 //Display Pins
-const uint8_t LATCH_PIN = 10;
-const uint8_t DISP_CLOCK_PIN = 11;
-const uint8_t DISP_DATA_PIN = 12;
+const uint8_t LATCH_PIN = 8;
+const uint8_t DISP_CLOCK_PIN = 9;
+const uint8_t DISP_DATA_PIN = 10;
 
 //Button Pins
 const uint8_t DATA_PIN = 4;
 const uint8_t CLOCK_PIN = 5;
 const uint8_t MODE_PIN = 6;
+
+//SD Pins
+const uint8_t CS_PIN = 2;
 
 //Initilize Globals
 actions action = actions::running;
@@ -27,6 +31,10 @@ void setup()
   //Setup the Buttons
   buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
   Serial.println("BTN INIT");
+  
+  sd_init(CS_PIN);
+  Serial.println("SD_INIT");
+
 }
 
 void loop() {

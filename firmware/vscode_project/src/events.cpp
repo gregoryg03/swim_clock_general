@@ -119,7 +119,7 @@ void exit_countDown()
 }
 void enter_dataEntry()
 {
-  ;
+  reset_disp;
 }
 void run_dataEntry()
 {
