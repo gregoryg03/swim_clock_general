@@ -30,8 +30,11 @@ void sd_clear(void)
     clockData = SD.open(filename, FILE_WRITE);
 }
 
-void sd_write(uint16_t);
+void sd_write(uint16_t)
 {
-    
+   ; 
 }
-uint16_t sd_read(void);
+uint16_t sd_read(void)
+{
+    ;
+}
