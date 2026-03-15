@@ -41,7 +41,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   buttons btn;
   static event buttonPress;
-  static mode currentMode = m;
+  static mode currentMode;
 
   //Read the buttons
   buttonPress = btn.poll();

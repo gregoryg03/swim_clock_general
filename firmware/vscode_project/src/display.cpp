@@ -152,7 +152,7 @@ void countUp()
       shiftminsten += 1;
     }
 
-    if (shiftminsten > 5) {
+    if (shiftminsten > 6) {
       shiftminsten = 0;
     }
 
@@ -216,4 +216,49 @@ void reset_disp()
   shiftsecsten = 0;
   shiftmins = 0;
   shiftminsten = 0;
+}
+
+void data_entry_disp(uint8_t digit2Disp, uint16_t secss)
+{
+  static bool dispBlank = false;
+
+  static int i = 0;
+  
+  uint8_t minutes = secss / 60, seconds = secss % 60;
+
+  shiftminsten = minutes / 10;
+  shiftmins = minutes % 10;
+
+  shiftsecsten = seconds / 10;
+  shiftsecs = seconds % 10;
+
+  if (shiftsecs > 9) {
+      shiftsecs = 0;
+      shiftsecsten += 1;
+    }
+
+    if (shiftsecsten > 5) {
+      shiftsecsten = 0;
+      shiftmins += 1;
+    }
+
+    if (shiftmins > 9) {
+      shiftmins = 0;
+      shiftminsten += 1;
+    }
+
+    if (shiftminsten > 6) {
+      shiftminsten = 0;
+    }
+
+    
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+    
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
+   
+    shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
+   
+    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+    digitalWrite(latchPin, HIGH);
 }

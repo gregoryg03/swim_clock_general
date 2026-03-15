@@ -11,6 +11,8 @@ void sd_clear(void);
 void sd_write(uint16_t);
 uint16_t sd_read(void);
 
+extern File clockData;
+
 struct sdAction {
     void(*clear)(void);
     void(*write)(uint16_t);

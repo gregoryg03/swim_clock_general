@@ -68,4 +68,6 @@ void reset_disp();
 
 void change_state(mode);
 
+uint16_t sd_data_in_format(uint8_t[]);
+
 #endif

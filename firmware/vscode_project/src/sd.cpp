@@ -1,7 +1,7 @@
 #include "sd2.h"
 
 const char *filename = "intervals.txt";
-
+File clockData;
 
 struct sdAction sd = {
     .clear = sd_clear,
@@ -17,24 +17,40 @@ void sd_init(uint8_t CS_PIN)
 
   if (!SD.begin(CS_PIN)) {
     Serial.println("Init SD Failed!");
-    while(1);
+    //Add Fail Message?
   }
   Serial.println("Init SD done.");
+  
+  if (!clockData)
+    clockData = SD.open(filename, FILE_WRITE);
 }
 
 
 void sd_clear(void)
 {
-
     SD.remove(filename);
-    clockData = SD.open(filename, FILE_WRITE);
 }
 
-void sd_write(uint16_t)
+void sd_write(uint16_t data)
 {
-   ; 
+    if (!clockData)
+        clockData = SD.open(filename, FILE_WRITE);
+
+    if (clockData) {
+        clockData.write(reinterpret_cast<uint8_t*>(&data), sizeof(data));
+    }
 }
+
+
 uint16_t sd_read(void)
 {
-    ;
+    uint16_t output;
+    if (!clockData)
+        clockData = SD.open(filename, FILE_WRITE);
+
+    if (clockData){
+        clockData.read(reinterpret_cast<uint8_t*>(&output), sizeof(output));
+    }
+
+    return output;
 }
