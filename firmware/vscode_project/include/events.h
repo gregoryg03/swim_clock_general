@@ -17,6 +17,7 @@ enum class mode {
     countUp,
     countDown,
     dataEntry,
+    shutdown,
     MAX_MODES
 };
 
@@ -38,6 +39,10 @@ void exit_countDown();
 void enter_dataEntry();
 void run_dataEntry();
 void exit_dataEntry();
+
+void enter_shutdown();
+void run_shutdown();
+void exit_shutdown();
 
 extern modeState modeTable[];
 

@@ -2,13 +2,19 @@
 
 const char *filename = "intervals.txt";
 File clockData;
+File readFile;
 
 struct sdAction sd = {
     .clear = sd_clear,
     .write = sd_write,
-    .read = sd_read
+    .read = sd_read,
+    .dismount = sd_close
 };
 //Use sd.clear, sd.write, sd.read
+
+writeState writeTable[] = {
+    {sd_start, sd_write, sd_end}
+};
 
 void sd_init(uint8_t CS_PIN)
 {
@@ -21,36 +27,58 @@ void sd_init(uint8_t CS_PIN)
   }
   Serial.println("Init SD done.");
   
-  if (!clockData)
-    clockData = SD.open(filename, FILE_WRITE);
 }
 
 
-void sd_clear(void)
+// void sd_clear(void)
+// {
+//     if(SD.exists(filename)){
+//         SD.remove(filename);
+//     }
+// }
+
+void sd_start(void)
 {
-    SD.remove(filename);
+    clockData = SD.open(filename, FILE_WRITE);
+    if (!clockData)
+        Serial.println("SD Fail Start");
 }
 
 void sd_write(uint16_t data)
-{
-    if (!clockData)
-        clockData = SD.open(filename, FILE_WRITE);
-
+{   
     if (clockData) {
+        clockData.println("Test Text");
         clockData.write(reinterpret_cast<uint8_t*>(&data), sizeof(data));
     }
+    else
+        Serial.println("SD Fail Write");
 }
 
-
-uint16_t sd_read(void)
+void sd_end(void)
 {
-    uint16_t output;
-    if (!clockData)
-        clockData = SD.open(filename, FILE_WRITE);
+    clockData.flush();
+    clockData.close();
+}
 
-    if (clockData){
-        clockData.read(reinterpret_cast<uint8_t*>(&output), sizeof(output));
+void sd_read_init(void)
+{
+    readFile = SD.open(filename, FILE_READ);
+}
+
+bool sd_read(uint16_t &interval)
+{
+    if (!readFile)
+        return false;
+    
+    if (readFile.available() >= sizeof(interval)) {
+        readFile.read(reinterpret_cast<uint8_t*>(&interval), sizeof(interval));
+        return true;
     }
 
-    return output;
+    return false;
+}
+
+void sd_close(void)
+{
+    clockData.close();
 }

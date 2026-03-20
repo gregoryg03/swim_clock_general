@@ -11,7 +11,8 @@ event dataEntBtn = event::none;
 modeState modeTable[] = {
     {enter_countUp, run_countUp, exit_countUp},
     {enter_countDown, run_countDown, exit_countDown},
-    {enter_dataEntry, run_dataEntry, exit_dataEntry}
+    {enter_dataEntry, run_dataEntry, exit_dataEntry},
+    {enter_shutdown, run_shutdown, exit_shutdown}
 };
 
 mode handle_events(event btnPressed)
@@ -122,7 +123,8 @@ void exit_countDown()
 void enter_dataEntry()
 {
   reset_disp();
-  sd_clear();
+  //sd_clear();
+  sd_start();
   nextInterval = currentMillis;
 }
 
@@ -194,7 +196,25 @@ void run_dataEntry()
 
 void exit_dataEntry()
 {
-  clockData.flush();
+  sd_end();
+}
+
+void enter_shutdown()
+{
+  ;
+}
+
+void run_shutdown()
+{
+  Serial.println("Close SD");
+
+  sd_close();
+  delay(1000000);
+}
+
+void exit_shutdown()
+{
+  ;
 }
 
 uint16_t sd_data_in_format(uint8_t digits[])

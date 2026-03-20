@@ -207,7 +207,18 @@ void disp(mode setIcon)
       digitalWrite(latchPin, HIGH);
 
       break;
+    case mode::shutdown:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, datArray[9]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[9]);
+      digitalWrite(latchPin, HIGH);
   }
+
 }
 
 void reset_disp()
