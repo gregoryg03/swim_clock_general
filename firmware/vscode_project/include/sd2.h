@@ -10,7 +10,8 @@ enum sdAction {
     SD_OPEN,
     SD_WRITE,
     SD_READ,
-    SD_CLOSE
+    SD_CLOSE,
+    ACTION_COUT
 };
 
 enum sdMode {

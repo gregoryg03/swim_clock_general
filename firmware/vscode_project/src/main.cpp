@@ -18,6 +18,7 @@ const uint8_t MODE_PIN = 6;
 
 //SD Pins
 const uint8_t CS_PIN = 2;
+SD_CARD sdInit;
 
 //Initilize Globals
 actions action = actions::running;
@@ -32,9 +33,8 @@ void setup()
   buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
   Serial.println("BTN INIT");
   
-  sd_init(CS_PIN);
+  sdInit.sd_init(CS_PIN);
   Serial.println("SD_INIT");
-
 }
 
 void loop() {

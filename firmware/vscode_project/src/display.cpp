@@ -230,11 +230,7 @@ void reset_disp()
 }
 
 void data_entry_disp(uint8_t digit2Disp, uint16_t secss)
-{
-  static bool dispBlank = false;
-
-  static int i = 0;
-  
+{  
   uint8_t minutes = secss / 60, seconds = secss % 60;
 
   shiftminsten = minutes / 10;

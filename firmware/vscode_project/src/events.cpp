@@ -1,5 +1,4 @@
 #include "events.h"
-#include "sd2.h"
 
 static unsigned long currentMillis;
 static unsigned long nextInterval;
@@ -7,6 +6,9 @@ static unsigned long timeRemaining = 1000; //(Starts paused, so this will set in
 bool pausedFlag = false;
 mode last_mode;
 event dataEntBtn = event::none;
+
+static sdData sdItems = {READ_MODE, 0, 0, true};
+SD_CARD sdEventsInstance;
 
 modeState modeTable[] = {
     {enter_countUp, run_countUp, exit_countUp},
@@ -124,7 +126,7 @@ void enter_dataEntry()
 {
   reset_disp();
   //sd_clear();
-  sd_start();
+  sdEventsInstance.call(SD_OPEN, sdItems);
   nextInterval = currentMillis;
 }
 
@@ -134,6 +136,8 @@ void run_dataEntry()
   static uint8_t digitSelected = 0;
   static bool advanceFlag = false;
   static uint16_t numSec = 0;
+
+  sdItems.mode = WRITE_MODE;
 
   numSec = sd_data_in_format(total);
 
@@ -145,7 +149,8 @@ void run_dataEntry()
     if (advanceFlag) {
       nextInterval = currentMillis + 100;
 
-      sd_write(numSec);
+      sdItems.intervalIn = numSec;
+      sdEventsInstance.call(SD_WRITE, sdItems);
 
       for (int i = 0; i < 4; i++) {
         total[i] = 0;
@@ -196,7 +201,7 @@ void run_dataEntry()
 
 void exit_dataEntry()
 {
-  sd_end();
+  sdEventsInstance.call(SD_CLOSE, sdItems);
 }
 
 void enter_shutdown()
@@ -208,7 +213,7 @@ void run_shutdown()
 {
   Serial.println("Close SD");
 
-  sd_close();
+  sdEventsInstance.sd_shutdown();
   delay(1000000);
 }
 

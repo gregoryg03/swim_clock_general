@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "functions.h"
+#include "sd2.h"
 
 enum class event {
     none,

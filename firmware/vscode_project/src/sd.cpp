@@ -10,7 +10,7 @@ sdType SD_CARD::actions[4] = {
 };
 
 
-void sd_init(uint8_t CS_PIN)
+void SD_CARD::sd_init(uint8_t CS_PIN)
 {
 
   Serial.println("Init SD card...");
@@ -22,6 +22,13 @@ void sd_init(uint8_t CS_PIN)
   Serial.println("Init SD done.");
 }
 
+bool SD_CARD::call(sdAction action, sdData& sdStruct)
+{
+    if (action >= ACTION_COUT || actions[action] == nullptr) {
+        return false;
+    }
+    return actions[action](sdStruct);
+}
 
 bool sd_open(sdData& data)
 {
@@ -67,7 +74,7 @@ bool sd_close(sdData& data)
     return false;
 }
 
-void sd_shutdown(void)
+void SD_CARD::sd_shutdown(void)
 {
     if (clockData) {
         clockData.close();
