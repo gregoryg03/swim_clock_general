@@ -25,6 +25,8 @@ const int symArrayinv[5] = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11
 const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
 int intevaltime = 0;
 
+static sdData sdDataRead = {READ_MODE, 0, 0, false};
+SD_CARD sdInstanceRead;
 //decimal Pt
 byte dp = 0b00000000;
 
@@ -35,7 +37,7 @@ int secs, secsten, mins, minsten;
 
 bool counting = false;
 bool flag = false;
-static int curInt, status;
+static int status;
 
 
 void displayinit(uint8_t LATCH, uint8_t CLOCK, uint8_t DATA)
@@ -72,9 +74,24 @@ void displayinit(uint8_t LATCH, uint8_t CLOCK, uint8_t DATA)
 
 void getInterval()
 {
+  static uint16_t curInt = 0;
+  static bool open_flag = false;
+
   if (!counting) {
-    static int i = 0;
-    curInt = timearr[i++];
+    //static int i = 0;
+    sdDataRead.mode = READ_MODE;
+    if (!open_flag) 
+      open_flag = sdInstanceRead.call(SD_OPEN, sdDataRead);
+      
+    if (sdInstanceRead.call(SD_READ, sdDataRead)) {
+      curInt = sdDataRead.intervalOut;
+    }
+    else {
+      Serial.println("Disp_Print_Error");
+      curInt = 0;
+    }
+
+    //curInt = timearr[i++];
     status = curInt;
     int minutes = curInt / 60, seconds = curInt % 60;
 

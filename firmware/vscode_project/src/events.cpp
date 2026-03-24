@@ -7,7 +7,7 @@ bool pausedFlag = false;
 mode last_mode;
 event dataEntBtn = event::none;
 
-static sdData sdItems = {READ_MODE, 0, 0, true};
+static sdData sdItems = {WRITE_MODE, 0, 0, true};
 SD_CARD sdEventsInstance;
 
 modeState modeTable[] = {
@@ -50,7 +50,7 @@ void set_action (event btnPressed)
         if (m != last_mode) {
             change_state(last_mode);
         }
-        Serial.println((int)m);
+        //Serial.println((int)m);
       }
       break;
     default:
@@ -151,6 +151,7 @@ void run_dataEntry()
 
       sdItems.intervalIn = numSec;
       sdEventsInstance.call(SD_WRITE, sdItems);
+      //Serial.println(numSec);
 
       for (int i = 0; i < 4; i++) {
         total[i] = 0;
@@ -227,7 +228,7 @@ uint16_t sd_data_in_format(uint8_t digits[])
   uint16_t funcOut;
   funcOut = static_cast<uint16_t>(digits[0] + digits[1] * 10 + digits[2] * 60 + digits[3] * 600); 
 
-  Serial.println(funcOut);
+  //Serial.println(funcOut);
 
   return funcOut;
 }

@@ -1,6 +1,6 @@
 #include "sd2.h"
 
-const char *filename = "INTS.txt";
+const char *filename = "INTS2.txt";
 
 File clockData;
 
@@ -12,14 +12,14 @@ sdType SD_CARD::actions[4] = {
 
 void SD_CARD::sd_init(uint8_t CS_PIN)
 {
-
-  Serial.println("Init SD card...");
-
-  if (!SD.begin(CS_PIN)) {
-    Serial.println("Init SD Failed!");
+    Serial.println("Init SD card...");
+    pinMode(CS_PIN, OUTPUT);
+    
+    if (!SD.begin(CS_PIN)) {
+        Serial.println("Init SD Failed!");
     //Add Fail Message?
-  }
-  Serial.println("Init SD done.");
+    }
+    Serial.println("Init SD done.");
 }
 
 bool SD_CARD::call(sdAction action, sdData& sdStruct)
@@ -32,6 +32,9 @@ bool SD_CARD::call(sdAction action, sdData& sdStruct)
 
 bool sd_open(sdData& data)
 {
+    if (clockData)
+        clockData.close();
+    Serial.println("SD_OPEN");
     clockData = SD.open(filename, data.mode);
         if (!clockData) {
             Serial.println("SD Fail Start");
@@ -42,9 +45,10 @@ bool sd_open(sdData& data)
 
 bool sd_write(sdData& data)
 {
+    Serial.println("SD_WRITE");
     if (clockData) {
-        Serial.print("Writing...");
-        clockData.write(reinterpret_cast<uint8_t*>(&data.intervalIn), sizeof(data.intervalIn));
+        Serial.println("Writing...");
+        clockData.write(reinterpret_cast<uint8_t*>(&(data.intervalIn)), sizeof(data.intervalIn));
         return true;
     }
     else 
@@ -54,10 +58,13 @@ bool sd_write(sdData& data)
 
 bool sd_read(sdData& data)
 {
+    Serial.println("SD_READ");
     if (clockData.available() >= sizeof(data.intervalOut)) {
-        clockData.read(reinterpret_cast<uint8_t*>(&data.intervalOut), sizeof(data.intervalOut));
-        return true;
+        size_t bytesRead = clockData.read(reinterpret_cast<uint8_t*>(&(data.intervalOut)), sizeof(data.intervalOut));
+        if (bytesRead <= sizeof(data.intervalOut))
+            return true;
     }
+    
     Serial.println("SD Read Fail");
     return false;
 }
@@ -65,6 +72,7 @@ bool sd_read(sdData& data)
 
 bool sd_close(sdData& data)
 {
+    Serial.println("SD_CLOSE");
     if (clockData) {
         clockData.close();
         Serial.println("close");
