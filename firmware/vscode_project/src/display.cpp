@@ -246,9 +246,10 @@ void reset_disp()
   shiftminsten = 0;
 }
 
-void data_entry_disp(uint8_t digit2Disp, uint16_t secss)
+void data_entry_disp(dispStruct& pass2disp, uint16_t secss)
 {  
   uint8_t minutes = secss / 60, seconds = secss % 60;
+
 
   shiftminsten = minutes / 10;
   shiftmins = minutes % 10;
@@ -275,14 +276,57 @@ void data_entry_disp(uint8_t digit2Disp, uint16_t secss)
       shiftminsten = 0;
     }
 
+    pass2disp.digitarr[3] = datArray[shiftminsten];
+    pass2disp.digitarr[2] = datArray[shiftmins] | dp;
+    pass2disp.digitarr[1] = invdatArray[shiftsecsten] | dp;
+    pass2disp.digitarr[0] = datArray[shiftsecs];
+
+
+    if (!dispData(pass2disp))
+      Serial.println("Disp Fail disp.cpp");
     
-    digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+    // digitalWrite(latchPin, LOW);
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
     
-    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
    
-    shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
+    // shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
    
-    shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
-    digitalWrite(latchPin, HIGH);
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+    // digitalWrite(latchPin, HIGH);
+}
+
+bool dispData(dispStruct& toDisplay)
+{
+  //bool onArr[segCount] = {0};
+  uint8_t digDisp[segCount] = {0};
+
+  if (toDisplay.blinkState) {
+    for (int i = 0; i < segCount; i++) {
+      if (toDisplay.blinkMask[i]) {
+        digDisp[i] = BLANK;
+    }
+      else {
+        digDisp[i] = toDisplay.digitarr[i];
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < segCount; i++) {
+      digDisp[i] = toDisplay.digitarr[i];
+    }
+  }
+
+
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[3]);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[2] | dp);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[1] | dp);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[0]);
+  digitalWrite(latchPin, HIGH);
+
+  return true;
 }

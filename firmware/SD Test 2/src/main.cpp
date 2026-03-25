@@ -8,7 +8,6 @@ uint16_t test_int = 0x1234;
 const char *filename = "INTS.txt";
 static File sdInstance;
 
-
 void setup() {
   Serial.begin(9600);
   
