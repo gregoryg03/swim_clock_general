@@ -5,6 +5,8 @@
 #include "functions.h"
 #include "sd2.h"
 
+#define BLINK_RATE 500 //time in ms
+
 enum class event {
     none,
     btn1press,

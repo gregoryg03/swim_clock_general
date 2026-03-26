@@ -5,7 +5,7 @@ static unsigned long nextInterval;
 static unsigned long blinkInterval;
 static unsigned long timeRemaining = 1000; //(Starts paused, so this will set initial time)
 bool pausedFlag = false;
-mode last_mode;
+mode last_mode, prg_mode;
 event dataEntBtn = event::none;
 
 static sdData sdItems = {WRITE_MODE, 0, 0, true};
@@ -26,8 +26,10 @@ mode handle_events(event btnPressed)
     set_action(btnPressed);
   }
   
-  if (action == actions::running)
-    modeTable[(int)m].run();
+  // if (action == actions::running)
+  //   modeTable[(int)m].run();
+
+  modeTable[(int)m].run(); //test
   return m;
 }
 
@@ -38,20 +40,23 @@ void set_action (event btnPressed)
       if (action == actions::running) {
         action = actions::paused;
         remTime();
+        prg_mode = m;
 
       }
       else if (action == actions::paused) {
+        if (m != last_mode) {
+            m = prg_mode;
+            change_state(last_mode);
+        }
+        
         action = actions::running;
       }
       break;
     case event::btn2press:
       if (action == actions::paused) {
-        last_mode = m;
-        next_mode(m);
-        if (m != last_mode) {
-            change_state(last_mode);
-        }
-        //Serial.println((int)m);
+        last_mode = prg_mode;
+        next_mode(prg_mode);
+        Serial.println((int)prg_mode);
       }
       break;
     default:
@@ -68,9 +73,9 @@ void remTime(void)
 
 void next_mode(mode modein)
 {
-  m = static_cast<mode>(((static_cast<int>(m) + 1) %
+  prg_mode = static_cast<mode>(((static_cast<int>(prg_mode) + 1) %
     static_cast<int>(mode::MAX_MODES)));
-  disp(m);
+  disp(prg_mode);
 }
 
 void change_state(mode prevMode)
@@ -86,14 +91,16 @@ void enter_countUp()
 }
 void run_countUp()
 {
-  if (pausedFlag) {
-  nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
-  pausedFlag = false;
-  }
+  if (actions::running == action) {
+    if (pausedFlag) {
+    nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+    pausedFlag = false;
+    }
 
-  if (currentMillis - nextInterval >= 1000) {
-  nextInterval += 1000;
-  countUp();
+    if (currentMillis - nextInterval >= 1000) {
+    nextInterval += 1000;
+    countUp();
+    }
   }
 }
 void exit_countUp()
@@ -107,16 +114,18 @@ void enter_countDown()
 }
 void run_countDown()
 {
-  getInterval();
+  if (action == actions::running) {
+    getInterval();
 
-  if (pausedFlag) {
-    nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
-    pausedFlag = false;
-  }
+    if (pausedFlag) {
+      nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+      pausedFlag = false;
+    }
 
-  if (currentMillis - nextInterval >= 1000) {
-    nextInterval += 1000;
-    countDown();
+    if (currentMillis - nextInterval >= 1000) {
+      nextInterval += 1000;
+      countDown();
+    }
   }
 }
 void exit_countDown()
@@ -129,6 +138,8 @@ void enter_dataEntry()
   //sd_clear();
   sdEventsInstance.call(SD_OPEN, sdItems);
   nextInterval = currentMillis;
+  blinkInterval = currentMillis;
+
 }
 
 void run_dataEntry()
@@ -138,17 +149,26 @@ void run_dataEntry()
   static bool advanceFlag = false;
   static uint16_t numSec = 0;
   static dispStruct dataEntryDisp = {};
-
+  
   sdItems.mode = WRITE_MODE;
 
   numSec = sd_data_in_format(total);
 
 
+  if (actions::paused == action) {
+    for (int i = 0; i < segCount; i++) {
+      dataEntryDisp.blinkMask[i] = false;
+    }
+  }
+  else {
+    dataEntryDisp.blinkMask[digitSelected] = true;
+  }
+
   if ((currentMillis - nextInterval >= 100) || advanceFlag) {
     nextInterval += 100;
 
-    if ((currentMillis - blinkInterval >= 500)) {
-      blinkInterval += 500;
+    if ((currentMillis - blinkInterval >= BLINK_RATE)) {
+      blinkInterval += BLINK_RATE;
       dataEntryDisp.blinkState = !dataEntryDisp.blinkState;
     }
 
@@ -201,12 +221,14 @@ void run_dataEntry()
       for (int i = 0; i < segCount; i++) {
         dataEntryDisp.blinkMask[i] = false;
       }
-      dataEntryDisp.blinkMask[digitSelected] = true;
       break;
     case event::btn5press:
       advanceFlag = true;
       break;
+    default:
+      break;
   }
+  
   dataEntBtn = event::none;
 }
 
