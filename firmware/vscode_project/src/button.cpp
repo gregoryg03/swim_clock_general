@@ -1,4 +1,4 @@
-#include <button.h>
+#include "button.h"
 
 //74HC165 Shift Register
 //Data Out Inverse
@@ -9,7 +9,6 @@ static int CLOCK_PIN;
 static int MODE_PIN;
 
 //Debounce
-static byte btn_states;
 static byte last_read = 0xFF;
 static byte last_state = 0xFF;
 static unsigned long lastDebounce[BTN_COUNT] = {0};
@@ -38,6 +37,42 @@ void fill_reg(void)
   delayMicroseconds(5);
 }
 
+event buttons::poll()
+{
+  byte reading = read_button(false);
+  byte pressed = edge_detect(reading);
+
+  //Serial.println("polling");
+
+  if ((pressed >> 0) & 1)
+    return event::btn1press;
+
+  if ((pressed >> 1) & 1)
+    return event::btn2press;
+  
+  if ((pressed >> 2) & 1)
+    return event::btn3press;
+  
+  if ((pressed >> 3) & 1)
+    return event::btn4press;
+
+  if ((pressed >> 4) & 1)
+    return event::btn5press;
+  
+  return event::none;
+}
+
+//Detect when the button is pressed to change state (if not it will bounce)
+byte edge_detect(byte reading)
+{
+  static byte btnEdgeDetect = 0;
+  byte output = reading & ~btnEdgeDetect;
+  btnEdgeDetect = reading;
+
+  return output;
+}
+
+
 //Can choose order based on bool, default is false
 byte read_button(bool order)
 {
@@ -62,6 +97,8 @@ byte read_button(bool order)
       break;
   }
 
+  //Serial.println(value);
+  
   return ~update_state(value);
 }
 

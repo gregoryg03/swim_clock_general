@@ -1,4 +1,5 @@
-#include <functions.h>
+#include "functions.h"
+#include "events.h"
 
 //TPIC (ShiftRegister)  Pins
 //RCK pin 12 (low is no output)
@@ -16,10 +17,16 @@ const int datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b0110
 //updside down digit array 0-9 without DP
 const int invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
 
+//Random display items       d            n           u         p            g
+const int symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110};
+const int symArrayinv[5] = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110};
+
 //Testing intervals to cycle through (sec)
 const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
 int intevaltime = 0;
 
+static sdData sdDataRead = {READ_MODE, 0, 0, false};
+SD_CARD sdInstanceRead;
 //decimal Pt
 byte dp = 0b00000000;
 
@@ -30,7 +37,8 @@ int secs, secsten, mins, minsten;
 
 bool counting = false;
 bool flag = false;
-static int curInt, status;
+static int status;
+
 
 void displayinit(uint8_t LATCH, uint8_t CLOCK, uint8_t DATA)
 {
@@ -66,9 +74,24 @@ void displayinit(uint8_t LATCH, uint8_t CLOCK, uint8_t DATA)
 
 void getInterval()
 {
+  static uint16_t curInt = 0;
+  static bool open_flag = false;
+
   if (!counting) {
-    static int i = 0;
-    curInt = timearr[i++];
+    //static int i = 0;
+    sdDataRead.mode = READ_MODE;
+    if (!open_flag) 
+      open_flag = sdInstanceRead.call(SD_OPEN, sdDataRead);
+      
+    if (sdInstanceRead.call(SD_READ, sdDataRead)) {
+      curInt = sdDataRead.intervalOut;
+    }
+    else {
+      Serial.println("Disp_Print_Error");
+      curInt = 0;
+    }
+
+    //curInt = timearr[i++];
     status = curInt;
     int minutes = curInt / 60, seconds = curInt % 60;
 
@@ -128,6 +151,7 @@ void countDown()
 
 void countUp()
 {
+  static const int dp = 1;
     shiftsecs += 1;
 
     if (shiftsecs > 9) {
@@ -145,7 +169,7 @@ void countUp()
       shiftminsten += 1;
     }
 
-    if (shiftminsten > 5) {
+    if (shiftminsten > 6) {
       shiftminsten = 0;
     }
 
@@ -159,4 +183,150 @@ void countUp()
    
     shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
     digitalWrite(latchPin, HIGH);
+}
+
+void disp(mode setIcon)
+{
+  switch (setIcon) {
+    case mode::countDown:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[0]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[1]);
+      digitalWrite(latchPin, HIGH);
+    
+      break;
+    case mode::countUp:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[2]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[3]);
+      digitalWrite(latchPin, HIGH);
+
+      break;
+    case mode::dataEntry:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArrayinv[3]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, symArray[4]);
+      digitalWrite(latchPin, HIGH);
+
+      break;
+    case mode::shutdown:
+      digitalWrite(latchPin, LOW);
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+      
+      shiftOut(dataPin, clockPin, LSBFIRST, 0b00000000);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, datArray[9]);
+    
+      shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[9]);
+      digitalWrite(latchPin, HIGH);
+  }
+
+}
+
+void reset_disp()
+{
+  shiftsecs = 0;
+  shiftsecsten = 0;
+  shiftmins = 0;
+  shiftminsten = 0;
+}
+
+void data_entry_disp(dispStruct& pass2disp, uint16_t secss)
+{  
+  uint8_t minutes = secss / 60, seconds = secss % 60;
+
+
+  shiftminsten = minutes / 10;
+  shiftmins = minutes % 10;
+
+  shiftsecsten = seconds / 10;
+  shiftsecs = seconds % 10;
+
+  if (shiftsecs > 9) {
+      shiftsecs = 0;
+      shiftsecsten += 1;
+    }
+
+    if (shiftsecsten > 5) {
+      shiftsecsten = 0;
+      shiftmins += 1;
+    }
+
+    if (shiftmins > 9) {
+      shiftmins = 0;
+      shiftminsten += 1;
+    }
+
+    if (shiftminsten > 6) {
+      shiftminsten = 0;
+    }
+
+    pass2disp.digitarr[3] = datArray[shiftminsten];
+    pass2disp.digitarr[2] = datArray[shiftmins] | dp;
+    pass2disp.digitarr[1] = invdatArray[shiftsecsten] | dp;
+    pass2disp.digitarr[0] = datArray[shiftsecs];
+
+
+    if (!dispData(pass2disp))
+      Serial.println("Disp Fail disp.cpp");
+    
+    // digitalWrite(latchPin, LOW);
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftminsten]);
+    
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftmins] | dp);
+   
+    // shiftOut(dataPin, clockPin, LSBFIRST, invdatArray[shiftsecsten] | dp);
+   
+    // shiftOut(dataPin, clockPin, LSBFIRST, datArray[shiftsecs]);
+    // digitalWrite(latchPin, HIGH);
+}
+
+bool dispData(dispStruct& toDisplay)
+{
+  //bool onArr[segCount] = {0};
+  uint8_t digDisp[segCount] = {0};
+
+  if (toDisplay.blinkState) {
+    for (int i = 0; i < segCount; i++) {
+      if (toDisplay.blinkMask[i]) {
+        digDisp[i] = BLANK;
+    }
+      else {
+        digDisp[i] = toDisplay.digitarr[i];
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < segCount; i++) {
+      digDisp[i] = toDisplay.digitarr[i];
+    }
+  }
+
+
+  digitalWrite(latchPin, LOW);
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[3]);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[2] | dp);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[1] | dp);
+  
+  shiftOut(dataPin, clockPin, LSBFIRST, digDisp[0]);
+  digitalWrite(latchPin, HIGH);
+
+  return true;
 }
