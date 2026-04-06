@@ -233,6 +233,10 @@ void run_dataEntry()
       break;
     case event::btn5press:
       advanceFlag = true;
+      for (int i = 0; i < segCount; i++) {
+        dataEntryDisp.blinkMask[i] = false;
+      }
+      digitSelected = 0;
       break;
     default:
       break;
