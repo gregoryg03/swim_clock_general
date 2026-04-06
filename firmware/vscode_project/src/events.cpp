@@ -18,21 +18,21 @@ modeState modeTable[] = {
     {enter_shutdown, run_shutdown, exit_shutdown}
 };
 
+
+//handle_events runs every loop in main. It handles the button presses and runs the selected mode. 
+//Calls set_action if button pressed.
 mode handle_events(event btnPressed)
 {
-
   currentMillis = millis();
   if (btnPressed != event::none) {
     set_action(btnPressed);
   }
-  
-  // if (action == actions::running)
-  //   modeTable[(int)m].run();
+  modeTable[(int)m].run();
 
-  modeTable[(int)m].run(); //test
   return m;
 }
 
+//set_action takes button press from handle_events and performs the relavent action.
 void set_action (event btnPressed)
 {
   switch (btnPressed) {
@@ -41,23 +41,29 @@ void set_action (event btnPressed)
         action = actions::paused;
         remTime();
         prg_mode = m;
-
       }
-      else if (action == actions::paused) {
+      else if ((action == actions::paused) || (action == actions::cycle)) {
         if (m != last_mode) {
             m = prg_mode;
             change_state(last_mode);
         }
-        
         action = actions::running;
       }
       break;
+
     case event::btn2press:
-      if (action == actions::paused) {
-        last_mode = prg_mode;
+      if (action == actions::cycle) {
         next_mode(prg_mode);
         Serial.println((int)prg_mode);
       }
+      if ((action == actions::paused) || (action == actions::cycle)) {
+        action = actions::cycle; //This action allows for changing modes
+        last_mode = prg_mode;
+        disp(prg_mode);
+        Serial.println("Paused 2 cycle");
+        Serial.println((int)prg_mode);
+      }
+
       break;
     default:
       dataEntBtn = btnPressed;
@@ -154,8 +160,11 @@ void run_dataEntry()
 
   numSec = sd_data_in_format(total);
 
+   if (action == actions::cycle) {
+    return;
+   }
 
-  if (actions::paused == action) {
+  if (action == actions::paused) {
     for (int i = 0; i < segCount; i++) {
       dataEntryDisp.blinkMask[i] = false;
     }
