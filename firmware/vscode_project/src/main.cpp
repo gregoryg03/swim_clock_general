@@ -21,7 +21,7 @@ const uint8_t CS_PIN = 2;
 SD_CARD sdInit;
 
 //Initilize Globals
-actions action = actions::running;
+actions action = actions::paused; //Was running
 mode m = mode::countUp;
 
 void setup() 
@@ -35,6 +35,8 @@ void setup()
   
   sdInit.sd_init(CS_PIN);
   Serial.println("SD_INIT");
+
+  init_events();
 }
 
 void loop() {

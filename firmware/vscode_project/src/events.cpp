@@ -4,7 +4,7 @@ static unsigned long currentMillis;
 static unsigned long nextInterval;
 static unsigned long blinkInterval;
 static unsigned long timeRemaining = 1000; //(Starts paused, so this will set initial time)
-bool pausedFlag = false;
+bool pausedFlag = false, startFlag = false;
 mode last_mode, prg_mode;
 event dataEntBtn = event::none;
 
@@ -17,6 +17,11 @@ modeState modeTable[] = {
     {enter_dataEntry, run_dataEntry, exit_dataEntry},
     {enter_shutdown, run_shutdown, exit_shutdown}
 };
+
+void init_events(void)
+{
+  startFlag = true;
+}
 
 
 //handle_events runs every loop in main. It handles the button presses and runs the selected mode. 
@@ -101,6 +106,11 @@ void run_countUp()
     if (pausedFlag) {
     nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
     pausedFlag = false;
+    }
+
+    if (startFlag) {
+      nextInterval = currentMillis;
+      startFlag = false;
     }
 
     if (currentMillis - nextInterval >= 1000) {

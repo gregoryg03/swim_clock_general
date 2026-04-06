@@ -56,6 +56,7 @@ enum class actions {
     enter
 };
 
+void init_events(void);
 
 
 mode handle_events(event);
