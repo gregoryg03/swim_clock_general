@@ -5,19 +5,42 @@
 #include "button.h"
 #include "sd2.h"
 
+#ifdef MY_ESP32C6
+    #define BAUD 115200
+    const uint8_t LATCH_PIN = 16;
+    const uint8_t DISP_CLOCK_PIN = 19;
+    const uint8_t DISP_DATA_PIN = 17;
+    const uint8_t DATA_PIN = 6;
+    const uint8_t CLOCK_PIN = 4;
+    const uint8_t MODE_PIN = 5;
+    const uint8_t CS_PIN = 7;
+    const uint8_t MOSI = 22;
+    const uint8_t MISO = 21;
+    const uint8_t SD_CLK = 23;
 
-//Display Pins
-const uint8_t LATCH_PIN = 8;
-const uint8_t DISP_CLOCK_PIN = 9;
-const uint8_t DISP_DATA_PIN = 10;
+#elif defined(MY_ARDUINO)
+    #define BAUD 9600
+    const uint8_t LATCH_PIN = 8;
+    const uint8_t DISP_CLOCK_PIN = 9;
+    const uint8_t DISP_DATA_PIN = 10;
+    const uint8_t DATA_PIN = 4;
+    const uint8_t CLOCK_PIN = 5;
+    const uint8_t MODE_PIN = 6;
+    const uint8_t CS_PIN = 2;
+#endif
 
-//Button Pins
-const uint8_t DATA_PIN = 4;
-const uint8_t CLOCK_PIN = 5;
-const uint8_t MODE_PIN = 6;
+// //Display Pins
+// const uint8_t LATCH_PIN;
+// const uint8_t DISP_CLOCK_PIN;
+// const uint8_t DISP_DATA_PIN;
 
-//SD Pins
-const uint8_t CS_PIN = 2;
+// //Button Pins
+// const uint8_t DATA_PIN;
+// const uint8_t CLOCK_PIN;
+// const uint8_t MODE_PIN;
+
+// //SD Pins
+// const uint8_t CS_PIN;
 SD_CARD sdInit;
 
 //Initilize Globals
@@ -26,7 +49,7 @@ mode m = mode::countUp;
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(BAUD);
   displayinit(LATCH_PIN, DISP_CLOCK_PIN, DISP_DATA_PIN);
   Serial.println("DISP INIT");
   //Setup the Buttons
@@ -38,6 +61,7 @@ void setup()
 
   init_events();
 }
+
 
 void loop() {
   // put your main code here, to run repeatedly:
