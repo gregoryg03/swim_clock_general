@@ -3414,6 +3414,16 @@
 	)
 	(wire
 		(pts
+			(xy 139.7 147.32) (xy 137.16 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0236a75e-01f8-4e80-9a08-ca178ad4b8b9")
+	)
+	(wire
+		(pts
 			(xy 218.44 33.02) (xy 222.25 33.02)
 		)
 		(stroke
@@ -3434,6 +3444,16 @@
 	)
 	(wire
 		(pts
+			(xy 130.81 154.94) (xy 132.08 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "034113ea-79bd-474a-b551-fcc7cfc8a58a")
+	)
+	(wire
+		(pts
 			(xy 27.94 134.62) (xy 24.13 134.62)
 		)
 		(stroke
@@ -3441,16 +3461,6 @@
 			(type default)
 		)
 		(uuid "043c73bc-dbd1-4ef0-a444-2d92d01c494d")
-	)
-	(wire
-		(pts
-			(xy 137.16 147.32) (xy 137.16 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0579f8c3-3e37-4868-a76b-429aea53cfcd")
 	)
 	(wire
 		(pts
@@ -4894,6 +4904,16 @@
 	)
 	(wire
 		(pts
+			(xy 139.7 147.32) (xy 139.7 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b27f5668-c24e-47a0-b32c-107c6e7c46ff")
+	)
+	(wire
+		(pts
 			(xy 184.15 113.03) (xy 184.15 115.57)
 		)
 		(stroke
@@ -5743,7 +5763,7 @@
 		(uuid "3f79ed9e-a3eb-4bee-9bb0-6cb12204cb73")
 	)
 	(label "SER_HC"
-		(at 137.16 147.32 0)
+		(at 139.7 147.32 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10564,6 +10584,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 135.89 154.94 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8c353554-cfda-40f7-9650-d1682c3220e0")
+		(property "Reference" "R37"
+			(at 135.89 148.59 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "R"
+			(at 135.89 151.13 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 135.89 153.162 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 135.89 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 135.89 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "54f55d5c-95e1-4ea6-8459-368073dbf9a2")
+		)
+		(pin "2"
+			(uuid "d827b657-6186-48b7-9f02-762011baa1b5")
+		)
+		(instances
+			(project ""
+				(path "/a68a42c8-0d52-4a7d-8bde-897121bcc70e"
+					(reference "R37")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "GregSyms:SD_Breakout")
 		(at 227.33 134.62 0)
 		(unit 1)
@@ -13034,7 +13122,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 137.16 151.13 0)
+		(at 130.81 154.94 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -13043,7 +13131,7 @@
 		(fields_autoplaced yes)
 		(uuid "e4cb60da-2cdb-437e-8404-29587c23abfa")
 		(property "Reference" "#PWR028"
-			(at 137.16 157.48 0)
+			(at 130.81 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13052,7 +13140,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 137.16 156.21 0)
+			(at 130.81 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13060,7 +13148,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 137.16 151.13 0)
+			(at 130.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13069,7 +13157,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 137.16 151.13 0)
+			(at 130.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13078,7 +13166,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 137.16 151.13 0)
+			(at 130.81 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13090,7 +13178,7 @@
 			(uuid "cc4a4d74-c77a-4555-8cf0-b9a50a5620a3")
 		)
 		(instances
-			(project ""
+			(project "MainBoard4Layer"
 				(path "/a68a42c8-0d52-4a7d-8bde-897121bcc70e"
 					(reference "#PWR028")
 					(unit 1)

@@ -1,4 +1,4 @@
-27234961284243071
+27234959938484834
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -63280,6 +63280,13 @@ GregFootprints
 10
 10
 GregFootprints
+12mm BTN Backside
+Generic SW PUSH 12mm, e.g https://sten-eswitch-13110800-production.s3.amazonaws.com/system/asset/product_line/data_sheet/143/TL1100.pdf
+tact sw push 12mm
+0
+4
+2
+GregFootprints
 22AWG Wire Jump
 
 
@@ -63321,13 +63328,6 @@ MOLEX_10_PIN
 0
 10
 10
-GregFootprints
-SD Card
-
-
-0
-8
-8
 GregFootprints
 VLS6045EX Inductor
 
