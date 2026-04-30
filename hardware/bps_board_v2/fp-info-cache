@@ -1,4 +1,4 @@
-27234959938484834
+27236751966196934
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -63307,6 +63307,13 @@ ESPC6_BEETLE
 0
 16
 16
+GregFootprints
+EmptyPad
+
+
+0
+1
+1
 GregFootprints
 InductorFixed
 

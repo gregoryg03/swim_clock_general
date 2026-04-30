@@ -1,4 +1,4 @@
-(footprint "18650 8mm Strip"
+(footprint "EmptyPad"
 	(version 20241229)
 	(generator "pcbnew")
 	(generator_version "9.0")
@@ -7,7 +7,7 @@
 		(at 0 -0.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
-		(uuid "b6b91668-0bd4-464c-a38f-438eadc431c7")
+		(uuid "67498304-c6fe-4592-b1d6-87a68a82d3c3")
 		(effects
 			(font
 				(size 1 1)
@@ -15,11 +15,11 @@
 			)
 		)
 	)
-	(property "Value" "18650 8mm Strip"
+	(property "Value" "Untitled"
 		(at 0 1 0)
 		(unlocked yes)
 		(layer "F.Fab")
-		(uuid "78e32a16-04a2-4267-a28c-2a24592ef2b6")
+		(uuid "113d0108-463c-44ae-999d-addd1d33f54c")
 		(effects
 			(font
 				(size 1 1)
@@ -32,7 +32,7 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "25c9e606-9718-4416-b710-76188cd741ac")
+		(uuid "e64b53bc-e082-47a9-9a89-5c9cb22fa7fa")
 		(effects
 			(font
 				(size 1 1)
@@ -45,7 +45,7 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "3450355b-cd2b-45ca-b5d4-fcb0b448df2b")
+		(uuid "d9da6e1b-6913-4d40-912c-00dd55ef117a")
 		(effects
 			(font
 				(size 1 1)
@@ -58,7 +58,7 @@
 		(at 0 2.5 0)
 		(unlocked yes)
 		(layer "F.Fab")
-		(uuid "d35901a9-b9aa-48ea-8254-f8ee9a613f60")
+		(uuid "99e45254-2076-4555-9815-09788ce38cc0")
 		(effects
 			(font
 				(size 1 1)
@@ -66,21 +66,12 @@
 			)
 		)
 	)
-	(pad "1" thru_hole oval
-		(at 0 0 90)
-		(size 11 2.5)
-		(drill oval 9 0.5)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "e601a8f1-b20e-4f4a-9e62-10e9c5c4f806")
-	)
-	(pad "2" thru_hole oval
-		(at 65 0 90)
-		(size 11 2.5)
-		(drill oval 9 0.5)
-		(layers "*.Cu" "*.Mask")
-		(remove_unused_layers no)
-		(uuid "0d6f9985-f2e7-4968-836c-92a87eef7ca4")
+	(pad "1" smd roundrect
+		(at 0 0)
+		(size 3 3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.15)
+		(uuid "c7a42acf-f4a9-4b7d-9755-57a42f13829c")
 	)
 	(embedded_fonts no)
 )
