@@ -1,0 +1,24 @@
+#ifndef BUTTON_POLL
+#define BUTTON_POLL
+
+#include <stdio.h>
+#include <stdint.h>
+#include "events.h"
+#include "driver/gpio.h"
+#include "freertos/FreeRTOS.h"
+
+#define BTN_COUNT 8
+#define DEBOUNCE 30 //time in ms
+
+class buttons {
+    public: 
+    event poll();
+};
+
+void buttons_init(uint8_t, uint8_t, uint8_t);
+void fill_reg(void);
+uint8_t read_button(bool);
+uint8_t update_state(uint8_t);
+uint8_t edge_detect(uint8_t);
+
+#endif
