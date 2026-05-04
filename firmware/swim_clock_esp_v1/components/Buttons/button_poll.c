@@ -22,16 +22,35 @@ static const char *TAG = "sd_debug";
 //Initilize buttons
 void buttons_init(gpio_num_t data, gpio_num_t clock, gpio_num_t mode)
 {
+    ESP_LOGI(TAG, "Initilizing Buttons");
+
     esp_err_t ret;
 
-    ESP_LOGI(TAG, "Initilizing Buttons");
+    gpio_config_t io_config_out = {};
+    gpio_config_t io_config_in = {};
+
+    io_config_out.mode = GPIO_MODE_OUTPUT;
+    
+
 
     DATA_PIN = data;
     CLOCK_PIN = clock;
     MODE_PIN = mode;
 
-    ret = gpio_set_direction(DATA_PIN, PIN_TYPE)
+    ret = gpio_set_direction(DATA_PIN, GPIO_MODE_INPUT);
+    if (ret != ESP_OK) {
+        ESP_LOGI(TAG, "DATA Fail Init");
+    }
 
+    ret gpio_set_direction(CLOCK_PIN, GPIO_MODE_OUTPUT);
+    if (ret != ESP_OK) {
+        ESP_LOGI(TAG, "CLK Fail Init");
+    }
+
+    ret gpio_set_direction(MODE_PIN, GPIO_MODE_OUTPUT);
+    if (ret != ESP_OK) {
+        ESP_LOGI(TAG, "CLK Fail Init");
+    }
 
     // pinMode(DATA_PIN, INPUT);
     // pinMode(CLOCK_PIN, OUTPUT);
