@@ -24,6 +24,16 @@ static uint8_t last_state = 0xFF;
 //Debug
 static const char *TAG = "sd_debug";
 
+//Function to read the inputs and latch shift reg
+static inline void latch_btns(void)
+{
+    gpio_set_level(pins.mode, 0);
+    //esp_rom_delay_us(5);
+
+    gpio_set_level(pins.mode, 1);
+    //esp_rom_delay_us(5);
+}
+
 //Initilize buttons
 void buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t mode_in)
 {
@@ -62,14 +72,22 @@ void buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t mode_in)
         ESP_LOGE(TAG, "Input Fail Init");
     }
 
-    ret = gpio_set_level(CLOCK_PIN, 0);
+    ret = gpio_set_level(pins.clock, 0);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "CLK Fail Init");
     }
 
-    ret = gpio_set_level(MODE_PIN, 0);
+    ret = gpio_set_level(pins.mode, 0);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Mode Fail Init");
     }
 
+}
+
+event buttons::poll()
+{
+    uint8_t reading = 0;
+    uint8_t pressed = 0;
+
+    reading = read_button(false);
 }
