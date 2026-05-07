@@ -19,7 +19,7 @@ static const gpio_mode_t PIN_TYPE = GPIO_MODE_INPUT;
 //Debounce
 static uint8_t last_read = 0xFF;
 static uint8_t last_state = 0xFF;
-//static unsigned long lastDebounce[BTN_COUNT] = {0};  RTOS timing Update, Use ticks
+static int64_t lastDebounce[BTN_COUNT] = {0}; 
 
 //Debug
 static const char *TAG = "sd_debug";
@@ -35,7 +35,7 @@ static inline void latch_btns(void)
 }
 
 //Initilize buttons
-void buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t mode_in)
+void ShiftReg::buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t mode_in)
 {
     ESP_LOGI(TAG, "Initilizing Buttons");
     
@@ -84,10 +84,90 @@ void buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t mode_in)
 
 }
 
-event buttons::poll()
+Event ShiftReg::poll()
 {
     uint8_t reading = 0;
     uint8_t pressed = 0;
 
     reading = read_button(false);
+    pressed = edge_detect(reading);
+
+    ESP_LOGI(TAG, "Polling Buttons");
+
+    if ((pressed >> 0) & 1)
+        return Event::btn1press;
+
+    if ((pressed >> 1) & 1)
+        return Event::btn2press;
+    
+    if ((pressed >> 2) & 1)
+        return Event::btn3press;
+    
+    if ((pressed >> 3) & 1)
+        return Event::btn4press;
+
+    if ((pressed >> 4) & 1)
+        return Event::btn5press;
+    
+    return Event::none;
+        
+}
+
+uint8_t ShiftReg::edge_detect(uint8_t reading)
+{
+    static uint8_t btnEdgeDetect = 0;
+    uint8_t output = reading & ~btnEdgeDetect;
+    btnEdgeDetect = reading;
+
+    return output;
+}
+
+uint8_t ShiftReg::read_button(bool order)
+{
+    fill_reg();
+
+    uint8_t value = 0;
+
+    switch (order) {
+        //MSBF
+        case true:
+            for (int i = 0; i < BTN_COUNT; i++) {
+                value |= (digitalRead(pins.data) << i);
+                digitalWrite(pins.clock, HIGH);
+                digitalWrite(pins.clock, LOW);
+            }
+            break;
+        //LSBF
+        default:
+        for (int i = 0; i < BTN_COUNT; i++) {
+            value |= (digitalRead(pins.data) << (7-i));
+            digitalWrite(pins.clock, HIGH);
+            digitalWrite(pins.clock, LOW);
+        }
+        break;
+    }
+
+    return ~update_state(value);
+}
+
+uint8_t ShiftReg::update_state(uint8_t value)
+{
+  byte mask = 1;
+  int64_t curtime = esp_timer_get_time();
+  
+  for (int i = 0; i < BTN_COUNT; i++) {
+    if (((value >> i) & mask) != ((last_read >> i) & mask)) {
+      lastDebounce[i] = curtime;
+      last_read = (last_read & ~(1 << i)) | (((value >> i) & 1) << i);
+    }
+  }
+
+  for (int i = 0; i < BTN_COUNT; i++) {
+    if ((curtime - lastDebounce[i]) > DEBOUNCE) {
+      bool currentBit = (value >> i) & 1;
+      last_state = (last_state & ~(1 << i)) | (currentBit << i);
+    }
+  }
+
+return last_state;  
 }
