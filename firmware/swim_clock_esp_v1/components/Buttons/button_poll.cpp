@@ -45,22 +45,22 @@ void ShiftReg::buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t 
     pins.clock = clock_in;
     pins.mode = mode_in;
     
-    gpio_config_t io_config_out = {0};
+    gpio_config_t io_config_out{};
 
     io_config_out.mode = GPIO_MODE_OUTPUT;
     io_config_out.pull_up_en = GPIO_PULLUP_DISABLE;
     io_config_out.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_config_out.intr_type = GPIO_INTR_DISABLE;
-    io_config_out.pin_bit_mask = BIT(pins.clock) | BIT(pins.mode);
+    io_config_out.pin_bit_mask = BIT64(pins.clock) | BIT64(pins.mode);
 
 
-    gpio_config_t io_config_in = {0};
+    gpio_config_t io_config_in{};
 
     io_config_in.mode = GPIO_MODE_INPUT;
     io_config_in.pull_up_en = GPIO_PULLUP_DISABLE;
     io_config_in.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_config_in.intr_type = GPIO_INTR_DISABLE;
-    io_config_in.pin_bit_mask = BIT(pins.data);
+    io_config_in.pin_bit_mask = BIT64(pins.data);
 
     ret = gpio_config(&io_config_out);
     if (ret != ESP_OK) {
@@ -124,7 +124,7 @@ uint8_t ShiftReg::edge_detect(uint8_t reading)
 
 uint8_t ShiftReg::read_button(bool order)
 {
-    fill_reg();
+    latch_btns();
 
     uint8_t value = 0;
 
@@ -132,17 +132,17 @@ uint8_t ShiftReg::read_button(bool order)
         //MSBF
         case true:
             for (int i = 0; i < BTN_COUNT; i++) {
-                value |= (digitalRead(pins.data) << i);
-                digitalWrite(pins.clock, HIGH);
-                digitalWrite(pins.clock, LOW);
+                value |= (gpio_get_level(pins.data) << i);
+                gpio_set_level(pins.clock, 1);
+                gpio_set_level(pins.clock, 0);
             }
             break;
         //LSBF
         default:
         for (int i = 0; i < BTN_COUNT; i++) {
-            value |= (digitalRead(pins.data) << (7-i));
-            digitalWrite(pins.clock, HIGH);
-            digitalWrite(pins.clock, LOW);
+            value |= (gpio_get_level(pins.data) << (7-i));
+            gpio_set_level(pins.clock, 1);
+            gpio_set_level(pins.clock, 0);
         }
         break;
     }
@@ -152,7 +152,7 @@ uint8_t ShiftReg::read_button(bool order)
 
 uint8_t ShiftReg::update_state(uint8_t value)
 {
-  byte mask = 1;
+  uint8_t mask = 1;
   int64_t curtime = esp_timer_get_time();
   
   for (int i = 0; i < BTN_COUNT; i++) {

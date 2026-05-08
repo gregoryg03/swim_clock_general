@@ -8,20 +8,21 @@
 #include "freertos/FreeRTOS.h"
 #include <sys/stat.h>
 #include "esp_log.h"
-#include "events.h"
+#include "esp_timer.h"
+
 
 #define BTN_COUNT 8
 #define DEBOUNCE 30 //time in ms
 
-class buttons {
+class ShiftReg {
     public: 
-    event poll();
-};
+    Event poll();
+    void buttons_init(gpio_num_t, gpio_num_t, gpio_num_t);
 
-void buttons_init(gpio_num_t, gpio_num_t, gpio_num_t);
-void fill_reg(void);
-uint8_t read_button(bool);
-uint8_t update_state(uint8_t);
-uint8_t edge_detect(uint8_t);
+    private:
+    uint8_t read_button(bool);
+    uint8_t update_state(uint8_t);
+    uint8_t edge_detect(uint8_t);
+};
 
 #endif 

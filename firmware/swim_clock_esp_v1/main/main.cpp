@@ -23,20 +23,26 @@ ShiftReg shiftReg;
 
 Event event;
 
+extern "C" {
 
-void app_main(void)
-{
-    ESP_LOGI(TAG, "Main running");
+    void app_main(void)
+    {
+        ESP_LOGI(TAG, "Main running");
 
-    shiftReg.buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
+        shiftReg.buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
 
 
-while (1) {
-    event = shiftReg.poll();
+    while (1) {
+        // event = shiftReg.poll();
 
-    vTaskDelay(pdMS_TO_TICKS(5));
+        // vTaskDelay(pdMS_TO_TICKS(5));
 
-    ESPL(TAG, "%d", static_cast<int>(event));
-}
+        // ESP_LOGI(TAG, "%d", static_cast<int>(event));
 
+
+        //Testing reset
+        ESP_LOGI(TAG, "loop tick");
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    }
 }
