@@ -28,10 +28,10 @@ static const char *TAG = "sd_debug";
 static inline void latch_btns(void)
 {
     gpio_set_level(pins.mode, 0);
-    //esp_rom_delay_us(5);
+    esp_rom_delay_us(5);
 
     gpio_set_level(pins.mode, 1);
-    //esp_rom_delay_us(5);
+    esp_rom_delay_us(5);
 }
 
 //Initilize buttons
@@ -92,7 +92,7 @@ Event ShiftReg::poll()
     reading = read_button(false);
     pressed = edge_detect(reading);
 
-    ESP_LOGI(TAG, "Polling Buttons");
+    //ESP_LOGI(TAG, "Polling Buttons");
 
     if ((pressed >> 0) & 1)
         return Event::btn1press;
@@ -134,7 +134,9 @@ uint8_t ShiftReg::read_button(bool order)
             for (int i = 0; i < BTN_COUNT; i++) {
                 value |= (gpio_get_level(pins.data) << i);
                 gpio_set_level(pins.clock, 1);
+                esp_rom_delay_us(2);
                 gpio_set_level(pins.clock, 0);
+                esp_rom_delay_us(2);
             }
             break;
         //LSBF
@@ -142,7 +144,9 @@ uint8_t ShiftReg::read_button(bool order)
         for (int i = 0; i < BTN_COUNT; i++) {
             value |= (gpio_get_level(pins.data) << (7-i));
             gpio_set_level(pins.clock, 1);
+            esp_rom_delay_us(5);
             gpio_set_level(pins.clock, 0);
+            esp_rom_delay_us(2);
         }
         break;
     }

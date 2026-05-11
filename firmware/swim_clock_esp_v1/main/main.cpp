@@ -33,16 +33,16 @@ extern "C" {
 
 
     while (1) {
-        // event = shiftReg.poll();
+        event = shiftReg.poll();
 
-        // vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(20));
 
-        // ESP_LOGI(TAG, "%d", static_cast<int>(event));
+        ESP_LOGI(TAG, "%d", static_cast<int>(event));
 
 
         //Testing reset
-        ESP_LOGI(TAG, "loop tick");
-        vTaskDelay(pdMS_TO_TICKS(100));
+        //ESP_LOGI(TAG, "loop tick");
+        //vTaskDelay(pdMS_TO_TICKS(100));
     }
     }
 }
