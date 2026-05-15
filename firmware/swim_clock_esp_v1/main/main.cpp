@@ -37,7 +37,7 @@ extern "C" {
 
         vTaskDelay(pdMS_TO_TICKS(20));
 
-        ESP_LOGI(TAG, "%d", static_cast<int>(event));
+        //ESP_LOGI(TAG, "%d", static_cast<int>(event));
 
 
         //Testing reset

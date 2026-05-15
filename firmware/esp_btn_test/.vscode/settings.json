@@ -1,8 +1,10 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
+  "idf.extensionActivationMode": "always",
   "idf.openOcdConfigs": [
     "board/esp32c6-lpcore-builtin.cfg"
   ],
+  "idf.portWin": "detect",
   "idf.currentSetup": "C:\\esp\\v6.0\\esp-idf",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c6"
@@ -11,7 +13,6 @@
   "clangd.arguments": [
     "--background-index",
     "--query-driver=**",
-    "--compile-commands-dir=c:\\Users\\gglas\\repos\\swim_clock_general\\firmware\\swim_clock_esp_v1\\build"
-  ],
-  "idf.portWin": "COM4"
+    "--compile-commands-dir=c:\\Users\\gglas\\repos\\swim_clock_general\\firmware\\esp_btn_test\\build"
+  ]
 }

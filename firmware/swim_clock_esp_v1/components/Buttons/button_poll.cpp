@@ -28,10 +28,10 @@ static const char *TAG = "sd_debug";
 static inline void latch_btns(void)
 {
     gpio_set_level(pins.mode, 0);
-    esp_rom_delay_us(5);
+    esp_rom_delay_us(2);
 
     gpio_set_level(pins.mode, 1);
-    esp_rom_delay_us(5);
+    esp_rom_delay_us(2);
 }
 
 //Initilize buttons
@@ -57,7 +57,7 @@ void ShiftReg::buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t 
     gpio_config_t io_config_in{};
 
     io_config_in.mode = GPIO_MODE_INPUT;
-    io_config_in.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_config_in.pull_up_en = GPIO_PULLUP_ENABLE;
     io_config_in.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_config_in.intr_type = GPIO_INTR_DISABLE;
     io_config_in.pin_bit_mask = BIT64(pins.data);
@@ -81,7 +81,7 @@ void ShiftReg::buttons_init(gpio_num_t data_in, gpio_num_t clock_in, gpio_num_t 
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Mode Fail Init");
     }
-
+    ESP_LOGI(TAG, "Initilizing Buttons Done");
 }
 
 Event ShiftReg::poll()
@@ -90,12 +90,16 @@ Event ShiftReg::poll()
     uint8_t pressed = 0;
 
     reading = read_button(false);
+
+    ESP_LOGI(TAG, "%u", reading);
     pressed = edge_detect(reading);
 
     //ESP_LOGI(TAG, "Polling Buttons");
 
-    if ((pressed >> 0) & 1)
+    if ((pressed >> 0) & 1) {
         return Event::btn1press;
+        ESP_LOGI(TAG, "Btn 1");
+    }
 
     if ((pressed >> 1) & 1)
         return Event::btn2press;
@@ -119,6 +123,7 @@ uint8_t ShiftReg::edge_detect(uint8_t reading)
     uint8_t output = reading & ~btnEdgeDetect;
     btnEdgeDetect = reading;
 
+    ESP_LOGI(TAG, "%u", output); //prints all 0, does not update
     return output;
 }
 
@@ -131,25 +136,27 @@ uint8_t ShiftReg::read_button(bool order)
     switch (order) {
         //MSBF
         case true:
-            for (int i = 0; i < BTN_COUNT; i++) {
-                value |= (gpio_get_level(pins.data) << i);
-                gpio_set_level(pins.clock, 1);
-                esp_rom_delay_us(2);
-                gpio_set_level(pins.clock, 0);
-                esp_rom_delay_us(2);
-            }
-            break;
+        for (int i = 0; i < BTN_COUNT; i++) {
+            value |= (gpio_get_level(pins.data) << i);
+            gpio_set_level(pins.clock, 1);
+            esp_rom_delay_us(2);
+            gpio_set_level(pins.clock, 0);
+            esp_rom_delay_us(2);
+        }
+        break;
         //LSBF
         default:
         for (int i = 0; i < BTN_COUNT; i++) {
             value |= (gpio_get_level(pins.data) << (7-i));
             gpio_set_level(pins.clock, 1);
-            esp_rom_delay_us(5);
+            esp_rom_delay_us(2);
             gpio_set_level(pins.clock, 0);
             esp_rom_delay_us(2);
         }
         break;
     }
+
+   // ESP_LOGI(TAG, "%u", value);
 
     return ~update_state(value);
 }
@@ -172,6 +179,8 @@ uint8_t ShiftReg::update_state(uint8_t value)
       last_state = (last_state & ~(1 << i)) | (currentBit << i);
     }
   }
+
+  //ESP_LOGI(TAG, "%u", last_state);
 
 return last_state;  
 }
