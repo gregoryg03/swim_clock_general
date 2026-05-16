@@ -3,8 +3,11 @@
 #include "sd_card.h"
 #include "button_poll.h"
 #include "events.h"
+#include "display.h"
 #include <sys/stat.h>
 #include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 static const char *TAG = "main_debug";
 
@@ -23,6 +26,26 @@ ShiftReg shiftReg;
 
 Event event;
 
+void btn_task(void *pvParameters)
+{
+    while (1) {
+        ESP_LOGI(TAG, "Btn Task Running");
+
+        event = shiftReg.poll();
+
+        vTaskDelay(pdMS_TO_TICKS(20));
+    }
+}
+
+void disp_task(void *pvParameters)
+{
+    while (1) {
+        ESP_LOGI(TAG, "Disp Task Running");
+
+        vTaskDelay(pdMS_TO_TICKS(90));
+    }
+}
+
 extern "C" {
 
     void app_main(void)
@@ -31,14 +54,34 @@ extern "C" {
 
         shiftReg.buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
 
+        display_init(LATCH_PIN, DISP_CLOCK_PIN, DISP_DATA_PIN);
 
-    while (1) {
-        event = shiftReg.poll();
+        xTaskCreate(
+            btn_task,
+            "btn_task",
+            2048,
+            NULL,
+            5,
+            NULL
+        );
 
-        vTaskDelay(pdMS_TO_TICKS(20));
+        xTaskCreate(
+            disp_task,
+            "disp_task",
+            2048,
+            NULL,
+            5,
+            NULL
+        );
 
-        //ESP_LOGI(TAG, "%d", static_cast<int>(event));
+    // while (1) {
+    //     event = shiftReg.poll();
 
-    }
+    //     vTaskDelay(pdMS_TO_TICKS(20));
+
+
+    //     //ESP_LOGI(TAG, "%d", static_cast<int>(event));
+
+    // }
     }
 }

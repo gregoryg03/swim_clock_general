@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "main.cpp"
     INCLUDE_DIRS "."
-    REQUIRES Buttons SdCard
+    REQUIRES Buttons SdCard freertos
     )

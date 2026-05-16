@@ -16,6 +16,8 @@ void display_init(gpio_num_t, gpio_num_t, gpio_num_t);
 
 void remTime(void);
 
+void shift_out(uint8_t);
+
 void next_mode(Mode);
 
 void disp(Mode);
