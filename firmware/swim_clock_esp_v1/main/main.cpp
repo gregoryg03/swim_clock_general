@@ -39,10 +39,6 @@ extern "C" {
 
         //ESP_LOGI(TAG, "%d", static_cast<int>(event));
 
-
-        //Testing reset
-        //ESP_LOGI(TAG, "loop tick");
-        //vTaskDelay(pdMS_TO_TICKS(100));
     }
     }
 }

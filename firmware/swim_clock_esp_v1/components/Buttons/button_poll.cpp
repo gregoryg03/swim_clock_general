@@ -91,28 +91,36 @@ Event ShiftReg::poll()
 
     reading = read_button(false);
 
-    ESP_LOGI(TAG, "%u", reading);
+    //ESP_LOGI(TAG, "%u", reading); Removed
     pressed = edge_detect(reading);
 
     //ESP_LOGI(TAG, "Polling Buttons");
 
     if ((pressed >> 0) & 1) {
-        return Event::btn1press;
         ESP_LOGI(TAG, "Btn 1");
+        return Event::btn1press;
     }
 
-    if ((pressed >> 1) & 1)
+    if ((pressed >> 1) & 1) {
+        ESP_LOGI(TAG, "Btn 2");
         return Event::btn2press;
-    
-    if ((pressed >> 2) & 1)
-        return Event::btn3press;
-    
-    if ((pressed >> 3) & 1)
-        return Event::btn4press;
+    }
 
-    if ((pressed >> 4) & 1)
+    if ((pressed >> 2) & 1) {
+        ESP_LOGI(TAG, "Btn 3");
+        return Event::btn3press;
+    }
+
+    if ((pressed >> 3) & 1) {
+        ESP_LOGI(TAG, "Btn 4");
+        return Event::btn4press;
+    }
+
+    if ((pressed >> 4) & 1) {
+        ESP_LOGI(TAG, "Btn 5");
         return Event::btn5press;
-    
+    }
+
     return Event::none;
         
 }
@@ -123,7 +131,10 @@ uint8_t ShiftReg::edge_detect(uint8_t reading)
     uint8_t output = reading & ~btnEdgeDetect;
     btnEdgeDetect = reading;
 
-    ESP_LOGI(TAG, "%u", output); //prints all 0, does not update
+    //ESP_LOGI(TAG, "Out: %u Re: %u btnE: %u", output, reading, btnEdgeDetect); //prints all 0, does not update
+    // ESP_LOGI(TAG, "Red: " BYTE_TO_BINARY_PATTERN "btnE: " BYTE_TO_BINARY_PATTERN "Out: " BYTE_TO_BINARY_PATTERN,
+    //    BYTE_TO_BINARY(reading), BYTE_TO_BINARY(btnEdgeDetect), BYTE_TO_BINARY(output));
+
     return output;
 }
 
