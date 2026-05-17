@@ -1,6 +1,12 @@
 #ifndef EVENTS
 #define EVENTS
 
+#include "esp_timer.h"
+#include <stdio.h>
+#include <stdint.h>
+#include "esp_log.h"
+#include "display.h"
+
 #define BLINK_RATE 500 //time in ms
 
 enum class Event {
@@ -26,6 +32,12 @@ struct modeState {
     void(*exit)();
 };
 
+enum class actions {
+    running,
+    paused,
+    cycle,
+    enter
+};
 
 void enter_countUp();
 void run_countUp();
@@ -54,14 +66,10 @@ enum class Actions {
 
 void init_events(void);
 
-
 Mode handle_events(Event);
 
 void set_action(Event);
 
-// extern actions action;
-
-// extern mode m;
 
 
 #endif

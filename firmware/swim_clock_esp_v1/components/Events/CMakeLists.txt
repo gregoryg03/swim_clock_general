@@ -1,5 +1,5 @@
 idf_component_register(
     SRCS "events.cpp"
     INCLUDE_DIRS "."
-    REQUIRES log
+    REQUIRES esp_timer Display
     )

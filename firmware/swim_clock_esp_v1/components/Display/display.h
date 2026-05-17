@@ -12,6 +12,12 @@
 
 #define BLINK_RATE 500 //time in ms
 
+struct dispStruct {
+    uint8_t digitarr[4];
+    bool blinkState;
+    bool blinkMask[4];
+};
+
 void display_init(gpio_num_t, gpio_num_t, gpio_num_t);
 
 void remTime(void);
