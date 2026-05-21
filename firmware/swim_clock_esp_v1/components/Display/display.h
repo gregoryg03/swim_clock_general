@@ -14,9 +14,14 @@
 
 struct dispStruct {
     uint8_t digitarr[4];
+    bool dp_t[4];
     bool blinkState;
+    bool counting;
+    bool count_flag; //this is set true when countdown is complete
     bool blinkMask[4];
 };
+
+void disp_set(dispStruct *);
 
 void display_init(gpio_num_t, gpio_num_t, gpio_num_t);
 

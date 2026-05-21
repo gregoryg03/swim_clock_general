@@ -70,6 +70,9 @@ Mode handle_events(Event);
 
 void set_action(Event);
 
+void get_interval(dispStruct *);
+
+void count_down(dispStruct *);
 
 
 #endif

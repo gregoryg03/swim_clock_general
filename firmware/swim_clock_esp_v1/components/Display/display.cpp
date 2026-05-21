@@ -19,7 +19,7 @@ const uint8_t symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b1
 const uint8_t symArrayinv[5] = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110};
 
 //Testing intervals to cycle through (sec)
-const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
+
 int intevaltime = 0;
 
 //decimal Pt
@@ -75,5 +75,12 @@ void shift_out(uint8_t value)
         esp_rom_delay_us(1);
         gpio_set_level(disp_pins.clock, 0);
         esp_rom_delay_us(1);
+    }
+}
+
+void disp_set(dispStruct *disp_t)
+{
+    for (int i = 3; i >= 0; i--) {
+        shift_out(disp_t->digitarr[i]);
     }
 }

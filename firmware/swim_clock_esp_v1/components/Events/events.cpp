@@ -13,6 +13,9 @@ Actions action;
 modeState modeTable[];
 Event dataEntBtn = Event::none;
 
+dispStruct disp_data_events_t;
+static int status;
+
 modeState modeTable[] = {
     {enter_countUp, run_countUp, exit_countUp},
     {enter_countDown, run_countDown, exit_countDown},
@@ -20,10 +23,20 @@ modeState modeTable[] = {
     {enter_shutdown, run_shutdown, exit_shutdown}
 };
 
+//test array
+const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
+
+
 //set the starting flag to denote startup settings
 void init_events(void)
 {
-  startFlag = true;
+    //set the decimal points to on
+    disp_data_events_t.dp_t[0] = false;
+    disp_data_events_t.dp_t[1] = true;
+    disp_data_events_t.dp_t[2] = true;
+    disp_data_events_t.dp_t[3] = false;
+
+    startFlag = true;
 }
 
 //handle_events runs every loop in main. It handles the button presses and runs the selected mode. 
@@ -133,8 +146,8 @@ void enter_countDown()
 }
 void run_countDown()
 {
-  if (action == actions::running) {
-    getInterval();
+  if (action == Actions::running) {
+    get_interval(&disp_data_events_t);
 
     if (pausedFlag) {
       nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
@@ -143,7 +156,7 @@ void run_countDown()
 
     if (currentMillis - nextInterval >= 1000) {
       nextInterval += 1000;
-      countDown();
+      countDown(&disp_data_events_t);
     }
   }
 }
@@ -279,6 +292,66 @@ void run_shutdown()
 void exit_shutdown()
 {
   ;
+}
+
+void get_interval(dispStruct *dispData_t)
+{
+
+    static uint16_t curInt = 0;
+    static int test_arr_index = 0;
+
+
+
+    if (!dispData_t->counting) {
+        curInt = timearr[test_arr_index++];
+
+        status = curInt;
+        int minutes = curInt / 60, seconds = curInt % 60;
+
+        dispData_t->digitarr[3] = minutes / 10;
+        dispData_t->digitarr[2] = minutes % 10;
+
+        dispData_t->digitarr[1] = seconds / 10;
+        dispData_t->digitarr[0] = seconds % 10;
+
+        dispData_t->counting = true;
+        dispData_t->count_flag = false;
+    }
+}
+
+void countDown(dispStruct* dispData_countD_t)
+{
+
+    disp_set(dispData_countD_t);
+
+    if (--status == 0) {
+       dispData_countD_t->count_flag = true;
+    }
+
+    if (dispData_countD_t->count_flag){
+        dispData_countD_t->counting = false;
+        return;
+    }
+
+    if (dispData_countD_t->digitarr[0] > 0)
+        dispData_countD_t->digitarr[0]--;
+
+    else if (dispData_countD_t->digitarr[1] > 0) {
+      dispData_countD_t->digitarr[1]--;
+      dispData_countD_t->digitarr[0] = 9;
+    }
+    else if (dispData_countD_t->digitarr[2] > 0) {
+      dispData_countD_t->digitarr[2]--;
+      dispData_countD_t->digitarr[1] = 5;
+      dispData_countD_t->digitarr[0] = 9;
+    }
+    else if (dispData_countD_t->digitarr[3] > 0) {
+      dispData_countD_t->digitarr[3]--;
+      dispData_countD_t->digitarr[2] = 9;
+    }
+    else {
+        dispData_countD_t->count_flag = true;
+    }
 }
 
 // uint16_t sd_data_in_format(uint8_t digits[])
