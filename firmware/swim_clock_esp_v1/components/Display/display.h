@@ -21,7 +21,24 @@ struct dispStruct {
     bool blinkMask[4];
 };
 
-void disp_set(dispStruct *);
+typedef struct {
+    uint8_t numbers[10];
+    uint8_t inv_numbers[10];
+    uint8_t symbols[10];
+    uint8_t inv_symbols[10];
+} disp_data_t;
+
+typedef enum {
+    DISP_DIG,
+    DISP_DIG_I,
+    DISP_SYM,
+    DISP_SYM_I,
+
+} disp_mode_t;
+
+void disp_set(dispStruct *disp_t, 
+                disp_mode_t mode
+            );
 
 void display_init(gpio_num_t, gpio_num_t, gpio_num_t);
 

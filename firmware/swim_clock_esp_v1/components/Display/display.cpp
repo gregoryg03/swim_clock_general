@@ -8,15 +8,18 @@ typedef struct {
 
 static disp_pins_t disp_pins;
 
-//digit array 0-9 without DP
-const uint8_t datArray[10] = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b01100110, 0b10110110, 0b10111110, 0b11100000, 0b11111110, 0b11100110};
 
-//updside down digit array 0-9 without DP
-const uint8_t invdatArray[10] = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110};
+static const disp_data_t disp_data = {
+    //digit array 0-9 without DP
+    .numbers = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b01100110, 0b10110110, 0b10111110, 0b11100000, 0b11111110, 0b11100110},
 
-//Random display items       d            n           u         p            g
-const uint8_t symArray[5] = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110};
-const uint8_t symArrayinv[5] = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110};
+    //updside down digit array 0-9 without DP
+    .inv_numbers = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110},
+
+    //Random display items       d            n           u         p            g
+    .symbols = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110},
+    .inv_symbols = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110}
+};
 
 //Testing intervals to cycle through (sec)
 
@@ -57,10 +60,10 @@ void display_init(gpio_num_t LATCH, gpio_num_t CLOCK, gpio_num_t DATA)
     
     vTaskDelay(pdMS_TO_TICKS(1000));
     gpio_set_level(disp_pins.latch, 0);
-    shift_out(datArray[0]);
-    shift_out(datArray[0]);
-    shift_out(invdatArray[0]);
-    shift_out(datArray[0]);
+    shift_out(disp_data.numbers[0]);
+    shift_out(disp_data.numbers[0]);
+    shift_out(disp_data.inv_numbers[0]);
+    shift_out(disp_data.numbers[0]);
     gpio_set_level(disp_pins.latch, 1);
 
 
@@ -78,9 +81,39 @@ void shift_out(uint8_t value)
     }
 }
 
-void disp_set(dispStruct *disp_t)
+void disp_set(dispStruct *disp_t, 
+                disp_mode_t mode
+            )
 {
-    for (int i = 3; i >= 0; i--) {
-        shift_out(disp_t->digitarr[i]);
+    const uint8_t *table, *prev_table;
+    
+
+    if (mode == DISP_DIG) {
+        table = disp_data.numbers;
     }
+    else if (mode == DISP_DIG_I) {
+        table = disp_data.inv_numbers;
+    }
+    else if (mode == DISP_SYM) {
+        table = disp_data.symbols;
+    }
+    else if (mode == DISP_SYM_I) {
+        table = disp_data.inv_symbols;
+    }
+
+    for (int i = 3; i >= 0; i--) {
+        //this handels the inverted digit
+        if (i == 1) {
+            prev_table = table;
+            if (mode == DISP_DIG)
+                table = disp_data.inv_numbers;
+            else
+                table = disp_data.inv_symbols;
+            shift_out(table[disp_t->digitarr[i]] | disp_t->dp_t[i]);
+            table = prev_table;
+        }
+
+        shift_out(table[disp_t->digitarr[i]] | disp_t->dp_t[i]);
+    }
+    
 }

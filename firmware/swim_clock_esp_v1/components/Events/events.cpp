@@ -322,7 +322,7 @@ void get_interval(dispStruct *dispData_t)
 void countDown(dispStruct* dispData_countD_t)
 {
 
-    disp_set(dispData_countD_t);
+    disp_set(dispData_countD_t, DISP_DIG);
 
     if (--status == 0) {
        dispData_countD_t->count_flag = true;
