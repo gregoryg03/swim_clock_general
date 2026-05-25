@@ -20,17 +20,21 @@ bool counting = false;
 bool flag = false;
 static int status;
 
+
+
 void test_sd(void)
 {
     ESP_LOGI(TAG, "SD Main");
 
     static uint16_t curInt = 0;
     static bool open_flag = false;
+    static int i = 0;
 
     if (!counting) {
         curInt = timearr[i++];
         status = curInt;
     }
+
     int minutes = curInt / 60, seconds = curInt % 60;
 
     shiftminsten = minutes / 10;

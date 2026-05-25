@@ -54,6 +54,8 @@ extern "C" {
 
         shiftReg.buttons_init(DATA_PIN, CLOCK_PIN, MODE_PIN);
 
+        init_events();
+
         display_init(LATCH_PIN, DISP_CLOCK_PIN, DISP_DATA_PIN);
 
         xTaskCreate(

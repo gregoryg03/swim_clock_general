@@ -16,9 +16,20 @@ static const disp_data_t disp_data = {
     //updside down digit array 0-9 without DP
     .inv_numbers = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110},
 
-    //Random display items       d            n           u         p            g
-    .symbols = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110},
-    .inv_symbols = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110}
+    //Random display items
+    //             d            n           u            p           g          0
+    .symbols = {0b01111010, 0b00101010, 0b00111000, 0b11001110, 0b11110110, 0b11111100},
+    .inv_symbols = {0b11001110, 0b00101010, 0b11000100, 0b01111010, 0b11110110, 0b11111100}
+};
+
+const DispTables DigTable = {
+    disp_data.numbers,
+    disp_data.inv_numbers
+};
+
+const DispTables SymTable = {
+    disp_data.symbols,
+    disp_data.inv_symbols
 };
 
 //Testing intervals to cycle through (sec)
@@ -26,7 +37,7 @@ static const disp_data_t disp_data = {
 int intevaltime = 0;
 
 //decimal Pt
-uint8_t dp = 0b00000000;
+uint8_t DP_MASK = 0b00000000;
 
 //Debugging
 esp_err_t ret;
@@ -85,35 +96,29 @@ void disp_set(dispStruct *disp_t,
                 disp_mode_t mode
             )
 {
-    const uint8_t *table, *prev_table;
-    
+    const DispTables *t = nullptr;
 
-    if (mode == DISP_DIG) {
-        table = disp_data.numbers;
-    }
-    else if (mode == DISP_DIG_I) {
-        table = disp_data.inv_numbers;
-    }
-    else if (mode == DISP_SYM) {
-        table = disp_data.symbols;
-    }
-    else if (mode == DISP_SYM_I) {
-        table = disp_data.inv_symbols;
+    switch (mode)
+    {
+        case DISP_DIG:
+            t = &DigTable;
+            break;
+        
+        case DISP_SYM:
+            t = &SymTable;
+            break;
     }
 
     for (int i = 3; i >= 0; i--) {
-        //this handels the inverted digit
+        const uint8_t *table = t->normal;
+
         if (i == 1) {
-            prev_table = table;
-            if (mode == DISP_DIG)
-                table = disp_data.inv_numbers;
-            else
-                table = disp_data.inv_symbols;
-            shift_out(table[disp_t->digitarr[i]] | disp_t->dp_t[i]);
-            table = prev_table;
+            table = t->inverse;
         }
 
-        shift_out(table[disp_t->digitarr[i]] | disp_t->dp_t[i]);
+        uint8_t idx = disp_t->digitarr[i];
+        bool dp = disp_t->dp_t[i];
+
+        shift_out(table[idx] | (dp ? DP_MASK : 0));
     }
-    
 }

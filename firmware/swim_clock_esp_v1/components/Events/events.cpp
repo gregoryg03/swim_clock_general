@@ -1,4 +1,5 @@
 #include "events.h"
+#include "display.h"
 
 static const char *TAG = "events_debug";
 
@@ -10,10 +11,14 @@ static uint64_t timeRemaining = 1000; //(Starts paused, so this will set initial
 bool pausedFlag = false, startFlag = false;
 Mode last_mode, prg_mode, m;
 Actions action;
-modeState modeTable[];
+
 Event dataEntBtn = Event::none;
 
-dispStruct disp_data_events_t;
+static dispStruct downDisp{},
+                  upDisp{},
+                  pgDisp{},
+                  modeDisp{};
+
 static int status;
 
 modeState modeTable[] = {
@@ -30,13 +35,9 @@ const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
 //set the starting flag to denote startup settings
 void init_events(void)
 {
-    //set the decimal points to on
-    disp_data_events_t.dp_t[0] = false;
-    disp_data_events_t.dp_t[1] = true;
-    disp_data_events_t.dp_t[2] = true;
-    disp_data_events_t.dp_t[3] = false;
+  downDisp.count_flag = true;
 
-    startFlag = true;
+  startFlag = true;
 }
 
 //handle_events runs every loop in main. It handles the button presses and runs the selected mode. 
@@ -101,7 +102,27 @@ void next_mode(Mode modein)
 {
   prg_mode = static_cast<Mode>(((static_cast<int>(prg_mode) + 1) %
     static_cast<int>(Mode::MAX_MODES)));
-  disp(prg_mode);
+  
+  switch (prg_mode)
+  {
+    case Mode::countDown:
+      pgDisp.digitarr[1] = 1;
+      pgDisp.digitarr[0] = 0;
+      break;
+    case Mode::countUp:
+      pgDisp.digitarr[1] = 2;
+      pgDisp.digitarr[0] = 3;
+      break;
+    case Mode::dataEntry:
+      pgDisp.digitarr[1] = 3;
+      pgDisp.digitarr[0] = 4;
+      break;
+    default:
+      pgDisp.digitarr[1] = 5;
+      pgDisp.digitarr[0] = 5;
+
+  }
+  disp_set(&pgDisp, DISP_SYM);
 }
 
 void change_state(Mode prevMode)
@@ -147,7 +168,7 @@ void enter_countDown()
 void run_countDown()
 {
   if (action == Actions::running) {
-    get_interval(&disp_data_events_t);
+    get_interval(&downDisp);
 
     if (pausedFlag) {
       nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
@@ -156,7 +177,7 @@ void run_countDown()
 
     if (currentMillis - nextInterval >= 1000) {
       nextInterval += 1000;
-      countDown(&disp_data_events_t);
+      countDown(&downDisp);
     }
   }
 }
@@ -319,7 +340,7 @@ void get_interval(dispStruct *dispData_t)
     }
 }
 
-void countDown(dispStruct* dispData_countD_t)
+void countDown(dispStruct *dispData_countD_t)
 {
 
     disp_set(dispData_countD_t, DISP_DIG);
@@ -352,6 +373,34 @@ void countDown(dispStruct* dispData_countD_t)
     else {
         dispData_countD_t->count_flag = true;
     }
+}
+
+void countUp(dispStruct *dispData_countU_t)
+{
+  static const int dp = 1;
+    dispData_countU_t->digitarr[0] += 1;
+
+    if (dispData_countU_t->digitarr[0] > 9) {
+      dispData_countU_t->digitarr[0] = 0;
+      dispData_countU_t->digitarr[1] += 1;
+    }
+
+    if (dispData_countU_t->digitarr[1] > 5) {
+      dispData_countU_t->digitarr[1] = 0;
+      dispData_countU_t->digitarr[2] += 1;
+    }
+
+    if (dispData_countU_t->digitarr[2] > 9) {
+      dispData_countU_t->digitarr[2] = 0;
+      dispData_countU_t->digitarr[3] += 1;
+    }
+
+    if (dispData_countU_t->digitarr[3] > 6) {
+      dispData_countU_t->digitarr[3] = 0;
+    }
+
+    
+    disp_set(dispData_countU_t, DISP_DIG);
 }
 
 // uint16_t sd_data_in_format(uint8_t digits[])

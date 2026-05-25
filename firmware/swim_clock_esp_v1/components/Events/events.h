@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "esp_log.h"
-#include "display.h"
+
 
 #define BLINK_RATE 500 //time in ms
+
+struct dispStruct;
 
 enum class Event {
     none,
@@ -73,6 +75,14 @@ void set_action(Event);
 void get_interval(dispStruct *);
 
 void count_down(dispStruct *);
+
+void next_mode(Mode);
+
+void change_state(Mode);
+
+void countDown(dispStruct *);
+
+void countUp(dispStruct *);
 
 
 #endif

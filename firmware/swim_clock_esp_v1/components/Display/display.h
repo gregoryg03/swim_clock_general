@@ -12,7 +12,7 @@
 
 #define BLINK_RATE 500 //time in ms
 
-struct dispStruct {
+struct dispStruct{
     uint8_t digitarr[4];
     bool dp_t[4];
     bool blinkState;
@@ -30,11 +30,17 @@ typedef struct {
 
 typedef enum {
     DISP_DIG,
-    DISP_DIG_I,
+    //DISP_DIG_I,
     DISP_SYM,
-    DISP_SYM_I,
+    //DISP_SYM_I,
 
 } disp_mode_t;
+
+struct DispTables
+{
+    const uint8_t *normal;
+    const uint8_t *inverse;
+};
 
 void disp_set(dispStruct *disp_t, 
                 disp_mode_t mode
@@ -46,13 +52,8 @@ void remTime(void);
 
 void shift_out(uint8_t);
 
-void next_mode(Mode);
-
-void disp(Mode);
-
 void reset_disp();
 
-void change_state(Mode);
 
 uint16_t sd_data_in_format(uint8_t[]);
 
