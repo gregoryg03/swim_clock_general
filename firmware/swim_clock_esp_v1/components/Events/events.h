@@ -84,5 +84,7 @@ void countDown(dispStruct *);
 
 void countUp(dispStruct *);
 
+void helper_disp_pg(Mode);
+
 
 #endif

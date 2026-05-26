@@ -36,8 +36,18 @@ const int timearr[10] = {20, 5, 20, 5, 30, 10, 60, 10, 20, 3000};
 void init_events(void)
 {
   downDisp.count_flag = true;
+  downDisp.dp_t[1] = true;
+  downDisp.dp_t[2] = true;
+
+  upDisp.dp_t[1] = true;
+  upDisp.dp_t[2] = true;
 
   startFlag = true;
+
+  m = Mode::countUp;
+  last_mode = Mode::countUp;
+  prg_mode = Mode::countUp;
+  action = Actions::paused;
 }
 
 //handle_events runs every loop in main. It handles the button presses and runs the selected mode. 
@@ -47,7 +57,9 @@ Mode handle_events(Event btnPressed)
   currentMillis = esp_timer_get_time();
   if (btnPressed != Event::none) {
     set_action(btnPressed);
+    ESP_LOGI(TAG, "handle_events BTN");
   }
+  
   modeTable[(int)m].run();
 
   return m;
@@ -58,6 +70,10 @@ void set_action (Event btnPressed)
 {
   switch (btnPressed) {
     case Event::btn1press:
+      ESP_LOGI(TAG, "PROG M: %d", static_cast<int>(prg_mode));
+      ESP_LOGI(TAG, "LAST M: %d", static_cast<int>(last_mode));
+      ESP_LOGI(TAG, "M M: %d", static_cast<int>(m));
+
       if (action == Actions::running) {
         action = Actions::paused;
         remTime();
@@ -69,20 +85,24 @@ void set_action (Event btnPressed)
             change_state(last_mode);
         }
         action = Actions::running;
+        ESP_LOGI(TAG, "Running");
       }
       break;
 
     case Event::btn2press:
       if (action == Actions::cycle) {
         next_mode(prg_mode);
-        ESP_LOGI(TAG, "%d", (int)prg_mode);
-      }
-      if ((action == Actions::paused) || (action == Actions::cycle)) {
-        action = Actions::cycle; //This action allows for changing modes
         last_mode = prg_mode;
-        //disp(prg_mode);
+        ESP_LOGI(TAG, "Cycle to %d", (int)prg_mode);
+        helper_disp_pg(prg_mode);
+      }
+      else if (action == Actions::paused) {
+        action = Actions::cycle; //This action allows for changing modes
+        ESP_LOGI(TAG, "%d", static_cast<int>(prg_mode));
+        helper_disp_pg(prg_mode);
+        last_mode = prg_mode;
         ESP_LOGI(TAG, "Paused 2 cycle");
-        ESP_LOGI(TAG, "%d", (int)prg_mode);
+        ESP_LOGI(TAG, "Paused on: %d", (int)prg_mode);
       }
 
       break;
@@ -100,31 +120,13 @@ void remTime(void)
 
 void next_mode(Mode modein)
 {
-  prg_mode = static_cast<Mode>(((static_cast<int>(prg_mode) + 1) %
+  prg_mode = static_cast<Mode>(((static_cast<int>(modein) + 1) %
     static_cast<int>(Mode::MAX_MODES)));
   
-  switch (prg_mode)
-  {
-    case Mode::countDown:
-      pgDisp.digitarr[1] = 1;
-      pgDisp.digitarr[0] = 0;
-      break;
-    case Mode::countUp:
-      pgDisp.digitarr[1] = 2;
-      pgDisp.digitarr[0] = 3;
-      break;
-    case Mode::dataEntry:
-      pgDisp.digitarr[1] = 3;
-      pgDisp.digitarr[0] = 4;
-      break;
-    default:
-      pgDisp.digitarr[1] = 5;
-      pgDisp.digitarr[0] = 5;
-
-  }
-  disp_set(&pgDisp, DISP_SYM);
+  //helper_disp_pg(prg_mode);
 }
 
+//This function changes the Mode for the clock. Set by a Btn 1 press
 void change_state(Mode prevMode)
 {
   modeTable[(int)prevMode].exit();
@@ -139,10 +141,11 @@ void enter_countUp()
 
 void run_countUp()
 {
+  //ESP_LOGI(TAG, "Running CountUp");
   if (Actions::running == action) {
     if (pausedFlag) {
-    nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
-    pausedFlag = false;
+      nextInterval = currentMillis + timeRemaining; //Will this cause the time to go faster?
+      pausedFlag = false;
     }
 
     if (startFlag) {
@@ -150,10 +153,11 @@ void run_countUp()
       startFlag = false;
     }
 
-    if (currentMillis - nextInterval >= 1000) {
-    nextInterval += 1000;
-    //countUp();
-    }
+    if (currentMillis - nextInterval >= 1000000) {
+    nextInterval += 1000000;
+    ESP_LOGI(TAG, "Disp CountUp");
+    countUp(&upDisp);
+    } 
   }
 }
 void exit_countUp()
@@ -175,8 +179,8 @@ void run_countDown()
       pausedFlag = false;
     }
 
-    if (currentMillis - nextInterval >= 1000) {
-      nextInterval += 1000;
+    if (currentMillis - nextInterval >= 1000000) {
+      nextInterval += 1000000;
       countDown(&downDisp);
     }
   }
@@ -220,8 +224,8 @@ void run_dataEntry()
     dataEntryDisp.blinkMask[digitSelected] = true;
   }
 
-  if ((currentMillis - nextInterval >= 100) || advanceFlag) {
-    nextInterval += 100;
+  if ((currentMillis - nextInterval >= 100000) || advanceFlag) {
+    nextInterval += 100000;
 
     if ((currentMillis - blinkInterval >= BLINK_RATE)) {
       blinkInterval += BLINK_RATE;
@@ -403,6 +407,38 @@ void countUp(dispStruct *dispData_countU_t)
     disp_set(dispData_countU_t, DISP_DIG);
 }
 
+
+void helper_disp_pg(Mode dispMode)
+{
+    switch (dispMode)
+  {
+    case Mode::countDown:
+      pgDisp.digitarr[0] = 1;
+      pgDisp.digitarr[1] = 0;
+      pgDisp.digitarr[2] = 6;
+      pgDisp.digitarr[3] = 6;
+      break;
+    case Mode::countUp:
+      pgDisp.digitarr[1] = 2;
+      pgDisp.digitarr[0] = 3;
+      pgDisp.digitarr[2] = 6;
+      pgDisp.digitarr[3] = 6;
+      break;
+    case Mode::dataEntry:
+      pgDisp.digitarr[1] = 3;
+      pgDisp.digitarr[0] = 4;
+      pgDisp.digitarr[2] = 6;
+      pgDisp.digitarr[3] = 6;
+      break;
+    default:
+      pgDisp.digitarr[1] = 5;
+      pgDisp.digitarr[0] = 5;
+      pgDisp.digitarr[2] = 6;
+      pgDisp.digitarr[3] = 6;
+  }
+  ESP_LOGI(TAG, "Disp set sym switch");
+  disp_set(&pgDisp, DISP_SYM);
+}
 // uint16_t sd_data_in_format(uint8_t digits[])
 // {
 //   uint16_t funcOut;

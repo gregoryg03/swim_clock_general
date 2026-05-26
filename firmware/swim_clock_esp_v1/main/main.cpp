@@ -29,20 +29,20 @@ Event event;
 void btn_task(void *pvParameters)
 {
     while (1) {
-        ESP_LOGI(TAG, "Btn Task Running");
+        //ESP_LOGI(TAG, "Btn Task Running");
 
         event = shiftReg.poll();
 
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(40));
     }
 }
 
 void disp_task(void *pvParameters)
 {
     while (1) {
-        ESP_LOGI(TAG, "Disp Task Running");
-
-        vTaskDelay(pdMS_TO_TICKS(90));
+        //ESP_LOGI(TAG, "Disp Task Running");
+        handle_events(event);
+        vTaskDelay(pdMS_TO_TICKS(40));
     }
 }
 
