@@ -7,7 +7,7 @@
 #include "esp_log.h"
 
 
-#define BLINK_RATE 500 //time in ms
+#define BLINK_RATE 500000 //time in ms
 
 struct dispStruct;
 
@@ -78,13 +78,17 @@ void count_down(dispStruct *);
 
 void next_mode(Mode);
 
-void change_state(Mode);
+void change_state(Mode, Mode);
 
 void countDown(dispStruct *);
 
 void countUp(dispStruct *);
 
 void helper_disp_pg(Mode);
+
+void data_entry_disp(uint16_t);
+
+uint16_t sd_data_in_format(uint8_t []);
 
 
 #endif

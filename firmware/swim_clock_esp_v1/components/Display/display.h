@@ -10,7 +10,6 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 
-#define BLINK_RATE 500 //time in ms
 
 struct dispStruct{
     uint8_t digitarr[4];
@@ -22,10 +21,10 @@ struct dispStruct{
 };
 
 typedef struct {
-    uint8_t numbers[10];
-    uint8_t inv_numbers[10];
-    uint8_t symbols[10];
-    uint8_t inv_symbols[10];
+    uint8_t numbers[11];
+    uint8_t inv_numbers[11];
+    uint8_t symbols[7];
+    uint8_t inv_symbols[7];
 } disp_data_t;
 
 typedef enum {

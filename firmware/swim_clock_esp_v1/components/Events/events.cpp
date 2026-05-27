@@ -9,7 +9,7 @@ static uint64_t blinkInterval;
 static uint64_t timeRemaining = 1000; //(Starts paused, so this will set initial time)
 
 bool pausedFlag = false, startFlag = false;
-Mode last_mode, prg_mode, m;
+Mode selected, current;
 Actions action;
 
 Event dataEntBtn = Event::none;
@@ -42,11 +42,13 @@ void init_events(void)
   upDisp.dp_t[1] = true;
   upDisp.dp_t[2] = true;
 
+  pgDisp.dp_t[1] = true;
+  pgDisp.dp_t[2] = true;
+
   startFlag = true;
 
-  m = Mode::countUp;
-  last_mode = Mode::countUp;
-  prg_mode = Mode::countUp;
+  current = Mode::countUp;
+  selected = Mode::countUp;
   action = Actions::paused;
 }
 
@@ -60,9 +62,9 @@ Mode handle_events(Event btnPressed)
     ESP_LOGI(TAG, "handle_events BTN");
   }
   
-  modeTable[(int)m].run();
+  modeTable[(int)current].run();
 
-  return m;
+  return current;
 }
 
 //set_action takes button press from handle_events and performs the relavent action.
@@ -70,20 +72,24 @@ void set_action (Event btnPressed)
 {
   switch (btnPressed) {
     case Event::btn1press:
-      ESP_LOGI(TAG, "PROG M: %d", static_cast<int>(prg_mode));
-      ESP_LOGI(TAG, "LAST M: %d", static_cast<int>(last_mode));
-      ESP_LOGI(TAG, "M M: %d", static_cast<int>(m));
+      ESP_LOGI(TAG, "Cur M: %d", static_cast<int>(current));
+      ESP_LOGI(TAG, "Sel M: %d", static_cast<int>(selected));
+
+      ESP_LOGI(TAG, "TRANSITION %d -> %d",
+         (int)current,
+         (int)selected);
 
       if (action == Actions::running) {
         action = Actions::paused;
         remTime();
-        prg_mode = m;
+        selected = current;
       }
       else if ((action == Actions::paused) || (action == Actions::cycle)) {
-        if (m != last_mode) {
-            m = prg_mode;
-            change_state(last_mode);
+        if (selected != current) {
+              change_state(current, selected);
+              current = selected;
         }
+
         action = Actions::running;
         ESP_LOGI(TAG, "Running");
       }
@@ -91,18 +97,14 @@ void set_action (Event btnPressed)
 
     case Event::btn2press:
       if (action == Actions::cycle) {
-        next_mode(prg_mode);
-        last_mode = prg_mode;
-        ESP_LOGI(TAG, "Cycle to %d", (int)prg_mode);
-        helper_disp_pg(prg_mode);
+        next_mode(selected);
+        ESP_LOGI(TAG, "Cycle to %d", (int)selected);
+        helper_disp_pg(selected);
       }
       else if (action == Actions::paused) {
         action = Actions::cycle; //This action allows for changing modes
-        ESP_LOGI(TAG, "%d", static_cast<int>(prg_mode));
-        helper_disp_pg(prg_mode);
-        last_mode = prg_mode;
-        ESP_LOGI(TAG, "Paused 2 cycle");
-        ESP_LOGI(TAG, "Paused on: %d", (int)prg_mode);
+        ESP_LOGI(TAG, "%d", static_cast<int>(selected));
+        helper_disp_pg(selected);
       }
 
       break;
@@ -120,18 +122,17 @@ void remTime(void)
 
 void next_mode(Mode modein)
 {
-  prg_mode = static_cast<Mode>(((static_cast<int>(modein) + 1) %
+  selected = static_cast<Mode>(((static_cast<int>(modein) + 1) %
     static_cast<int>(Mode::MAX_MODES)));
   
-  //helper_disp_pg(prg_mode);
+    ESP_LOGI(TAG, "NEW SELECTED: %d", (int)selected);
 }
 
 //This function changes the Mode for the clock. Set by a Btn 1 press
-void change_state(Mode prevMode)
+void change_state(Mode m_prev, Mode m_next)
 {
-  modeTable[(int)prevMode].exit();
-  last_mode = m;
-  modeTable[(int)m].enter();
+  modeTable[(int)m_prev].exit();
+  modeTable[(int)m_next].enter();
 }
 
 void enter_countUp()
@@ -194,8 +195,10 @@ void enter_dataEntry()
   reset_disp();
   //sd_clear();
   //sdEventsInstance.call(SD_OPEN, sdItems);
-  nextInterval = currentMillis;
+  nextInterval = currentMillis - 1000;
   blinkInterval = currentMillis;
+  ESP_LOGI(TAG, "Ent Data ent");
+
 
 }
 
@@ -205,11 +208,12 @@ void run_dataEntry()
   static uint8_t digitSelected = 0;
   static bool advanceFlag = false;
   static uint16_t numSec = 0;
-  static dispStruct dataEntryDisp = {};
   
  // sdItems.mode = WRITE_MODE;
 
-  //numSec = sd_data_in_format(total);
+  ESP_LOGI(TAG, "Data Ent %d", (int)action);
+
+  numSec = sd_data_in_format(total);
 
    if (action == Actions::cycle) {
     return;
@@ -217,11 +221,11 @@ void run_dataEntry()
 
   if (action == Actions::paused) {
     for (int i = 0; i < 4; i++) {
-      dataEntryDisp.blinkMask[i] = false;
+      pgDisp.blinkMask[i] = false;
     }
   }
   else {
-    dataEntryDisp.blinkMask[digitSelected] = true;
+    pgDisp.blinkMask[digitSelected] = true;
   }
 
   if ((currentMillis - nextInterval >= 100000) || advanceFlag) {
@@ -229,10 +233,10 @@ void run_dataEntry()
 
     if ((currentMillis - blinkInterval >= BLINK_RATE)) {
       blinkInterval += BLINK_RATE;
-      dataEntryDisp.blinkState = !dataEntryDisp.blinkState;
+      pgDisp.blinkState = !pgDisp.blinkState;
     }
 
-    // data_entry_disp(dataEntryDisp, numSec);
+    data_entry_disp(numSec);
 
     if (advanceFlag) {
       nextInterval = currentMillis;
@@ -279,13 +283,13 @@ void run_dataEntry()
       digitSelected += 1;
       digitSelected %= 4;
       for (int i = 0; i < 4; i++) {
-        dataEntryDisp.blinkMask[i] = false;
+        pgDisp.blinkMask[i] = false;
       }
       break;
     case Event::btn5press:
       advanceFlag = true;
       for (int i = 0; i < 4; i++) {
-        dataEntryDisp.blinkMask[i] = false;
+        pgDisp.blinkMask[i] = false;
       }
       digitSelected = 0;
       break;
@@ -298,6 +302,7 @@ void run_dataEntry()
 
 void exit_dataEntry()
 {
+  reset_disp();
   //sdEventsInstance.call(SD_CLOSE, sdItems);
 }
 
@@ -413,38 +418,75 @@ void helper_disp_pg(Mode dispMode)
     switch (dispMode)
   {
     case Mode::countDown:
-      pgDisp.digitarr[0] = 1;
-      pgDisp.digitarr[1] = 0;
-      pgDisp.digitarr[2] = 6;
-      pgDisp.digitarr[3] = 6;
+      modeDisp.digitarr[0] = 1;
+      modeDisp.digitarr[1] = 0;
+      modeDisp.digitarr[2] = 6;
+      modeDisp.digitarr[3] = 6;
       break;
     case Mode::countUp:
-      pgDisp.digitarr[1] = 2;
-      pgDisp.digitarr[0] = 3;
-      pgDisp.digitarr[2] = 6;
-      pgDisp.digitarr[3] = 6;
+      modeDisp.digitarr[1] = 2;
+      modeDisp.digitarr[0] = 3;
+      modeDisp.digitarr[2] = 6;
+      modeDisp.digitarr[3] = 6;
       break;
     case Mode::dataEntry:
-      pgDisp.digitarr[1] = 3;
-      pgDisp.digitarr[0] = 4;
-      pgDisp.digitarr[2] = 6;
-      pgDisp.digitarr[3] = 6;
+      modeDisp.digitarr[1] = 3;
+      modeDisp.digitarr[0] = 4;
+      modeDisp.digitarr[2] = 6;
+      modeDisp.digitarr[3] = 6;
       break;
     default:
-      pgDisp.digitarr[1] = 5;
-      pgDisp.digitarr[0] = 5;
-      pgDisp.digitarr[2] = 6;
-      pgDisp.digitarr[3] = 6;
+      modeDisp.digitarr[1] = 5;
+      modeDisp.digitarr[0] = 5;
+      modeDisp.digitarr[2] = 6;
+      modeDisp.digitarr[3] = 6;
   }
   ESP_LOGI(TAG, "Disp set sym switch");
-  disp_set(&pgDisp, DISP_SYM);
+  disp_set(&modeDisp, DISP_SYM);
 }
-// uint16_t sd_data_in_format(uint8_t digits[])
-// {
-//   uint16_t funcOut;
-//   funcOut = static_cast<uint16_t>(digits[0] + digits[1] * 10 + digits[2] * 60 + digits[3] * 600); 
 
-//   //Serial.println(funcOut);
+uint16_t sd_data_in_format(uint8_t digits[])
+{
+  uint16_t funcOut;
+  funcOut = static_cast<uint16_t>(digits[0] + digits[1] * 10 + digits[2] * 60 + digits[3] * 600); 
 
-//   return funcOut;
-// }
+  //Serial.println(funcOut);
+
+  return funcOut;
+}
+
+//Runs the logic for the program mode display
+void data_entry_disp(uint16_t secss)
+{  
+  uint8_t minutes = secss / 60, seconds = secss % 60;
+
+
+  pgDisp.digitarr[3] = minutes / 10;
+  pgDisp.digitarr[2] = minutes % 10;
+
+  pgDisp.digitarr[1] = seconds / 10;
+  pgDisp.digitarr[0] = seconds % 10;
+
+  if (pgDisp.digitarr[0] > 9) {
+    pgDisp.digitarr[0] = 0;
+    pgDisp.digitarr[1] += 1;
+  }
+
+  if (pgDisp.digitarr[1] > 5) {
+    pgDisp.digitarr[3] = 0;
+    pgDisp.digitarr[2] += 1;
+  }
+
+  if (pgDisp.digitarr[2] > 9) {
+    pgDisp.digitarr[2] = 0;
+    pgDisp.digitarr[3] += 1;
+  }
+
+  if (pgDisp.digitarr[3] > 6) {
+    pgDisp.digitarr[3] = 0;
+  }
+
+  disp_set(&pgDisp, DISP_DIG);
+    
+}
+

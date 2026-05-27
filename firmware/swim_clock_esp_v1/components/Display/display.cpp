@@ -11,10 +11,10 @@ static disp_pins_t disp_pins;
 
 static const disp_data_t disp_data = {
     //digit array 0-9 without DP
-    .numbers = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b01100110, 0b10110110, 0b10111110, 0b11100000, 0b11111110, 0b11100110},
+    .numbers = {0b11111100, 0b01100000, 0b11011010, 0b11110010, 0b01100110, 0b10110110, 0b10111110, 0b11100000, 0b11111110, 0b11100110, 0b00000000},
 
     //updside down digit array 0-9 without DP
-    .inv_numbers = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110},
+    .inv_numbers = {0b11111100, 0b00001100, 0b11011010, 0b10011110, 0b00101110, 0b10110110, 0b11110110, 0b00011100, 0b11111110, 0b00111110, 0b00000000},
 
     //Random display items
     //             d            n           u            p           g          0           null
@@ -86,11 +86,11 @@ void shift_out(uint8_t value)
 {
     for (int i = 0; i < 8; i++) {
         gpio_set_level(disp_pins.data, (1 & (value >> i)));
-        esp_rom_delay_us(1);
+        esp_rom_delay_us(5);
         gpio_set_level(disp_pins.clock, 1);
-        esp_rom_delay_us(1);
+        esp_rom_delay_us(5);
         gpio_set_level(disp_pins.clock, 0);
-        esp_rom_delay_us(1);
+        esp_rom_delay_us(5);
     }
 }
 
@@ -112,19 +112,57 @@ void disp_set(dispStruct *disp_t,
             t = &SymTable;
             break;
     }
+
     gpio_set_level(disp_pins.latch, 0);
-    for (int i = 3; i >= 0; i--) {
-        const uint8_t *table = t->normal;
 
-        if (i == 1) {
-            table = t->inverse;
-        }
+    switch (disp_t->blinkState) 
+    {
+        case true:
+            for (int i = 3; i >= 0; i--) {
+                const uint8_t *table = t->normal;
 
-        uint8_t idx = disp_t->digitarr[i];
-        bool dp = disp_t->dp_t[i];
+                if (i == 1) {
+                    table = t->inverse;
+                }
 
-        shift_out(table[idx] | (dp ? DP_MASK : 0));
+                uint8_t idx = disp_t->blinkMask[i] ? 10 : disp_t->digitarr[i];
+                bool dp = disp_t->dp_t[i];
+
+                shift_out(table[idx] | (dp ? DP_MASK : 0));
+            }
+            break;
+        default:
+            for (int i = 3; i >= 0; i--) {
+                const uint8_t *table = t->normal;
+
+                if (i == 1) {
+                    table = t->inverse;
+                }
+
+                uint8_t idx = disp_t->digitarr[i];
+                bool dp = disp_t->dp_t[i];
+
+                shift_out(table[idx] | (dp ? DP_MASK : 0));
+            }
+        break;
     }
+
+//
+//Testing original method
+//
+    // for (int i = 3; i >= 0; i--) {
+    //     const uint8_t *table = t->normal;
+
+    //     if (i == 1) {
+    //         table = t->inverse;
+    //     }
+
+    //     uint8_t idx = disp_t->digitarr[i];
+    //     bool dp = disp_t->dp_t[i];
+
+    //     shift_out(table[idx] | (dp ? DP_MASK : 0));
+    // }
+
     gpio_set_level(disp_pins.latch, 1);
     esp_rom_delay_us(5);
     gpio_set_level(disp_pins.latch, 0);
@@ -137,11 +175,13 @@ void disp_set(dispStruct *disp_t,
 
 void reset_disp(void)
 {
+    gpio_set_level(disp_pins.latch, 0);
+
     for (int i = 0; i < 4; i++) {
-        gpio_set_level(disp_pins.latch, 0);
         shift_out(disp_data.numbers[0]);
-        gpio_set_level(disp_pins.latch, 1);
-        esp_rom_delay_us(5);
-        gpio_set_level(disp_pins.latch, 0);
     }
+    
+    gpio_set_level(disp_pins.latch, 1);
+    esp_rom_delay_us(5);
+    gpio_set_level(disp_pins.latch, 0);
 }
