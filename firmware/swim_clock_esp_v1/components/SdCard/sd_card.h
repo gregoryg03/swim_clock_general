@@ -24,7 +24,7 @@ struct sdData {
 };
 
 //Function prototypes
-void sd_init(gpio_num_t, gpio_num_t, gpio_num_t);
+void sd_init(gpio_num_t, gpio_num_t, gpio_num_t, gpio_num_t);
 
 static esp_err_t write_file(const char *, char *);
 

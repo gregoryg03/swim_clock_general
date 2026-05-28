@@ -1,7 +1,7 @@
 idf_component_register(
-    SRCS "sd_card.cpp"
+    SRCS "sd_card.c"
     INCLUDE_DIRS "."
-    REQUIRES SdCard Display
+    REQUIRES Display
     REQUIRES esp_driver_gpio
     REQUIRES esp_driver_sdspi
     REQUIRES fatfs

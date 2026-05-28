@@ -18,6 +18,7 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
     sd_pins.mosi = mosi;
     sd_pins.miso = miso;
     sd_pins.clock = clock;
+    sd_pins.cs = cs;
 
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
