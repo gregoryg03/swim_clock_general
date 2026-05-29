@@ -66,5 +66,90 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
     }
 
     ESP_LOGI(TAG, "Filesystem mounted");
+    //Using POSTIX and C standard library to work with the files
 
+    //Create the file
+    const char *file_hello = MOUNT_POINT"/hello.txt";
+    char data[MAX_CHAR_SIZE];
+    snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Hello", card->cid.name);
+    ret = write_file(file_hello, data);
+    if (ret != ESP_OK) {
+        return;
+    }
+    
+    const char *file_foo = MOUNT_POINT"/foo.txt";
+
+    //check if file name already existis and delete if it does
+    struct stat st;
+    if (stat(file_foo, &st) == 0) {
+        unlink(file_foo);
+    }
+
+    //rename file
+    ESP_LOGI(TAG, "Remaming file %s to %s", file_hello, file_foo);
+    if (rename(file_hello, file_foo) != 0) {
+        ESP_LOGE(TAG, "Rename Failed");
+        return;
+    }
+
+    //Write
+    const char *file_nihao = MOUNT_POINT"/nihao.txt";
+    memset(data, 0, MAX_CHAR_SIZE);
+    snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Nihao", card->cid.name);
+    ret = write_file(file_nihao, data);
+
+    if (ret != ESP_OK) {
+        return;
+    }
+
+    //Open to read
+    ret = read_file(file_nihao);
+    if (ret != ESP_OK) {
+        return;
+    }
+
+    esp_vfs_fat_sdcard_unmount(mount_point, card);
+    ESP_LOGI(TAG, "Card unmounted");
+
+    spi_bus_free(host.slot);
+}
+
+
+static esp_err_t write_file(const char *path, char *data)
+{
+    ESP_LOGI(TAG, "Opening file %s", path);
+    FILE *f = fopen(path, "w");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+    fprintf(f, data);
+    fclose(f);
+
+    ESP_LOGI(TAG, "File written");
+
+    return ESP_OK;
+}
+
+static esp_err_t read_file(const char *path)
+{
+    ESP_LOGI(TAG, "Reading file %s", path);
+    FILE *f = fopen(path, "r");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+    char line[MAX_CHAR_SIZE];
+    fgets(line, sizeof(line), f);
+    fclose(f);
+
+    //Remove new line
+    char *pos = strchr(line, '\n');
+    if (pos) {
+        *pos = '\0';
+    }
+
+    ESP_LOGI(TAG, "Read from file: '%s'", line);
+
+    return ESP_OK;
 }

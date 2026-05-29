@@ -1,6 +1,10 @@
 #ifndef SD_CARD_H
 #define SD_CARD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/unistd.h>
@@ -31,5 +35,8 @@ static esp_err_t write_file(const char *, char *);
 //edit this to take in a pointer for the output so it can be used in main
 static esp_err_t read_file(const char *);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
