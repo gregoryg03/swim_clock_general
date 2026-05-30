@@ -35,6 +35,12 @@ static esp_err_t write_file(const char *, char *);
 //edit this to take in a pointer for the output so it can be used in main
 static esp_err_t read_file(const char *);
 
+esp_err_t sd_write_data(uint8_t *interval_in);
+
+esp_err_t sd_read_data(uint8_t *interval_out);
+
+void sd_shutdown(void);
+
 #ifdef __cplusplus
 }
 #endif

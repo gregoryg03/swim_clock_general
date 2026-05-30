@@ -11,9 +11,19 @@ typedef struct {
 
 sd_pins_t sd_pins;
 
+sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+sdmmc_card_t *card;
+const char mount_point[] = MOUNT_POINT;
+
+const char *path = MOUNT_POINT"/intervals.txt";
+
+size_t position = 0;
+
 void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
 {
     esp_err_t ret;
+
+    position = 0;
 
     sd_pins.mosi = mosi;
     sd_pins.miso = miso;
@@ -25,13 +35,12 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
         .max_files = 5,
     };
 
-    sdmmc_card_t *card;
-    const char mount_point[] = MOUNT_POINT;
+
     ESP_LOGI(TAG, "Initilizing SD Card");
 
     ESP_LOGI(TAG, "Using SPI Peripheral");
 
-    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    
 
     spi_bus_config_t bus_cfg = {
         .mosi_io_num = sd_pins.mosi,
@@ -69,45 +78,90 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
     //Using POSTIX and C standard library to work with the files
 
     //Create the file
-    const char *file_hello = MOUNT_POINT"/hello.txt";
-    char data[MAX_CHAR_SIZE];
-    snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Hello", card->cid.name);
-    ret = write_file(file_hello, data);
-    if (ret != ESP_OK) {
-        return;
-    }
     
-    const char *file_foo = MOUNT_POINT"/foo.txt";
+    char data[MAX_CHAR_SIZE];
 
     //check if file name already existis and delete if it does
     struct stat st;
-    if (stat(file_foo, &st) == 0) {
-        unlink(file_foo);
+    if (stat(path, &st) == 0) {
+        unlink(path);
+    }
+    
+    // snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Hello", card->cid.name);
+    // ret = write_file(file_intervals, data);
+    // if (ret != ESP_OK) {
+    //     return;
+    // }
+    
+   
+
+    // //Write
+    // const char *file_nihao = MOUNT_POINT"/nihao.txt";
+    // memset(data, 0, MAX_CHAR_SIZE);
+    // snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Nihao", card->cid.name);
+    // ret = write_file(file_nihao, data);
+
+    // if (ret != ESP_OK) {
+    //     return;
+    // }
+
+    // //Open to read
+    // ret = read_file(file_nihao);
+    // if (ret != ESP_OK) {
+    //     return;
+    // }
+
+    // esp_vfs_fat_sdcard_unmount(mount_point, card);
+    // ESP_LOGI(TAG, "Card unmounted");
+
+    // spi_bus_free(host.slot);
+}
+
+esp_err_t sd_write_data(uint8_t *interval_in)
+{
+    ESP_LOGI(TAG, "Opening file %s for w", path);
+    FILE *f = fopen(path, "wb");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open for write");
+        return ESP_FAIL;
+    }
+    fwrite(interval_in, sizeof(uint8_t), 1, f);
+    position++;
+
+    fclose(f);
+
+    ESP_LOGI(TAG, "Wrote");
+    return ESP_OK;
+}
+
+esp_err_t sd_read_data(uint8_t *interval_out)
+{
+    ESP_LOGI(TAG, "Reading file %s", path);
+    FILE *f = fopen(path, "rb");
+    if (f == NULL) {
+        ESP_LOGE(TAG, "Failed to open SD for reading");
+        return ESP_FAIL;
     }
 
-    //rename file
-    ESP_LOGI(TAG, "Remaming file %s to %s", file_hello, file_foo);
-    if (rename(file_hello, file_foo) != 0) {
-        ESP_LOGE(TAG, "Rename Failed");
-        return;
+    if (position == 1) {
+        *interval_out = 0;
+        return ESP_OK;
     }
 
-    //Write
-    const char *file_nihao = MOUNT_POINT"/nihao.txt";
-    memset(data, 0, MAX_CHAR_SIZE);
-    snprintf(data, MAX_CHAR_SIZE, "%s %s!\n", "Nihao", card->cid.name);
-    ret = write_file(file_nihao, data);
-
-    if (ret != ESP_OK) {
-        return;
+    if (fseek(f, --position, SEEK_SET) != 0) {
+        ESP_LOGE(TAG, "Read Fail Seek");
+        return ESP_FAIL;
     }
 
-    //Open to read
-    ret = read_file(file_nihao);
-    if (ret != ESP_OK) {
-        return;
-    }
+    fread(interval_out, sizeof(uint8_t), 1, f);
+    
+    fclose(f);
+    ESP_LOGI(TAG, "Read");
+    return ESP_OK;
+}
 
+void sd_shutdown(void)
+{
     esp_vfs_fat_sdcard_unmount(mount_point, card);
     ESP_LOGI(TAG, "Card unmounted");
 
@@ -115,41 +169,41 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
 }
 
 
-static esp_err_t write_file(const char *path, char *data)
-{
-    ESP_LOGI(TAG, "Opening file %s", path);
-    FILE *f = fopen(path, "w");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
-        return ESP_FAIL;
-    }
-    fprintf(f, data);
-    fclose(f);
+// static esp_err_t write_file(const char *path, char *data)
+// {
+//     ESP_LOGI(TAG, "Opening file %s", path);
+//     FILE *f = fopen(path, "w");
+//     if (f == NULL) {
+//         ESP_LOGE(TAG, "Failed to open file for writing");
+//         return ESP_FAIL;
+//     }
+//     fprintf(f, data);
+//     fclose(f);
 
-    ESP_LOGI(TAG, "File written");
+//     ESP_LOGI(TAG, "File written");
 
-    return ESP_OK;
-}
+//     return ESP_OK;
+// }
 
-static esp_err_t read_file(const char *path)
-{
-    ESP_LOGI(TAG, "Reading file %s", path);
-    FILE *f = fopen(path, "r");
-    if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for reading");
-        return ESP_FAIL;
-    }
-    char line[MAX_CHAR_SIZE];
-    fgets(line, sizeof(line), f);
-    fclose(f);
+// static esp_err_t read_file(const char *path)
+// {
+//     ESP_LOGI(TAG, "Reading file %s", path);
+//     FILE *f = fopen(path, "r");
+//     if (f == NULL) {
+//         ESP_LOGE(TAG, "Failed to open file for reading");
+//         return ESP_FAIL;
+//     }
+//     char line[MAX_CHAR_SIZE];
+//     fgets(line, sizeof(line), f);
+//     fclose(f);
 
-    //Remove new line
-    char *pos = strchr(line, '\n');
-    if (pos) {
-        *pos = '\0';
-    }
+//     //Remove new line
+//     char *pos = strchr(line, '\n');
+//     if (pos) {
+//         *pos = '\0';
+//     }
 
-    ESP_LOGI(TAG, "Read from file: '%s'", line);
+//     ESP_LOGI(TAG, "Read from file: '%s'", line);
 
-    return ESP_OK;
-}
+//     return ESP_OK;
+// }
