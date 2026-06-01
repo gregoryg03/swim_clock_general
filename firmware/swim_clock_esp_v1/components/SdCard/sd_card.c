@@ -134,6 +134,8 @@ esp_err_t sd_write_data(uint8_t *interval_in)
     return ESP_OK;
 }
 
+
+
 esp_err_t sd_read_data(uint8_t *interval_out)
 {
     ESP_LOGI(TAG, "Reading file %s", path);

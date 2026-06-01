@@ -21,6 +21,8 @@ static dispStruct downDisp{},
 
 static int status;
 
+static uint8_t sd_data;
+
 modeState modeTable[] = {
     {enter_countUp, run_countUp, exit_countUp},
     {enter_countDown, run_countDown, exit_countDown},
@@ -244,6 +246,8 @@ void run_dataEntry()
     //   sdItems.intervalIn = numSec;
     //   sdEventsInstance.call(SD_WRITE, sdItems);
       //Serial.println(numSec);
+
+      //sd_write_data(&sd_data);
 
       for (int i = 0; i < 4; i++) {
         total[i] = 0;

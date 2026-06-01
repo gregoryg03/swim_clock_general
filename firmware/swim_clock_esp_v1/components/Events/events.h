@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "esp_log.h"
+//#include "sd_card.h"
 
 
 #define BLINK_RATE 500000 //time in ms

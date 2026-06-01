@@ -58,7 +58,7 @@ extern "C" {
 
         display_init(LATCH_PIN, DISP_CLOCK_PIN, DISP_DATA_PIN);
 
-        sd_init(MOSI, MISO, SD_CLK, CS_PIN);
+        // sd_init(MOSI, MISO, SD_CLK, CS_PIN);
 
         xTaskCreate(
             btn_task,
