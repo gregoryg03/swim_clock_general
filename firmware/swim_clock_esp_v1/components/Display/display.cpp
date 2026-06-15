@@ -98,7 +98,7 @@ void disp_set(dispStruct *disp_t,
                 disp_mode_t mode
             )
 {
-    ESP_LOGI(TAG, "disp_set running");
+    //ESP_LOGI(TAG, "disp_set running");
     const DispTables *t = nullptr;
 
 

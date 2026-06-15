@@ -199,7 +199,7 @@ void enter_dataEntry()
   //sdEventsInstance.call(SD_OPEN, sdItems);
   nextInterval = currentMillis - 1000;
   blinkInterval = currentMillis;
-  ESP_LOGI(TAG, "Ent Data ent");
+  //ESP_LOGI(TAG, "Ent Data ent");
 
 
 }
@@ -210,6 +210,7 @@ void run_dataEntry()
   static uint8_t digitSelected = 0;
   static bool advanceFlag = false;
   static uint16_t numSec = 0;
+  uint8_t sd_lsb = 0, sd_msb = 0;
   
  // sdItems.mode = WRITE_MODE;
 
@@ -245,7 +246,17 @@ void run_dataEntry()
 
     //   sdItems.intervalIn = numSec;
     //   sdEventsInstance.call(SD_WRITE, sdItems);
-      //Serial.println(numSec);
+
+
+        sd_lsb = numSec & 0xFF;
+
+        sd_msb = (numSec >> 8) & 0xFF;
+      
+
+      sd_write_data(&sd_lsb);
+      sd_write_data(&sd_msb);
+
+      ESP_LOGI(TAG, "Sec written: %u", (unsigned int)numSec);
 
       //sd_write_data(&sd_data);
 
@@ -338,6 +349,20 @@ void get_interval(dispStruct *dispData_t)
 
     if (!dispData_t->counting) {
         curInt = timearr[test_arr_index++];
+
+        uint16_t sd_read_test = 0;
+        uint8_t sd_r_lsb = 0, sd_r_msb = 0;
+
+        sd_read_data(&sd_r_msb);
+        sd_read_data(&sd_r_lsb);
+
+        
+        sd_read_test  = (((uint16_t)sd_r_msb << 8) | sd_r_lsb);
+
+        ESP_LOGI(TAG, "disp_test_next_int: %u", (unsigned int)sd_read_test);
+        
+
+        
 
         status = curInt;
         int minutes = curInt / 60, seconds = curInt % 60;

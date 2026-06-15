@@ -117,15 +117,21 @@ void sd_init(gpio_num_t mosi, gpio_num_t miso, gpio_num_t clock, gpio_num_t cs)
     // spi_bus_free(host.slot);
 }
 
+// esp_err_t sd_open(void)
+// {
+
+// }
+
 esp_err_t sd_write_data(uint8_t *interval_in)
 {
     ESP_LOGI(TAG, "Opening file %s for w", path);
-    FILE *f = fopen(path, "wb");
+    FILE *f = fopen(path, "ab");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open for write");
         return ESP_FAIL;
     }
     fwrite(interval_in, sizeof(uint8_t), 1, f);
+    ESP_LOGI(TAG, "%u", (unsigned int)*interval_in);
     position++;
 
     fclose(f);
