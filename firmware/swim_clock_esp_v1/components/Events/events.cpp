@@ -171,6 +171,7 @@ void exit_countUp()
 void enter_countDown()
 {
   reset_disp();
+  //reset timer?
 }
 void run_countDown()
 {
@@ -214,7 +215,7 @@ void run_dataEntry()
   
  // sdItems.mode = WRITE_MODE;
 
-  ESP_LOGI(TAG, "Data Ent %d", (int)action);
+  // ESP_LOGI(TAG, "Data Ent %d", (int)action);
 
   numSec = sd_data_in_format(total);
 
@@ -348,7 +349,7 @@ void get_interval(dispStruct *dispData_t)
 
 
     if (!dispData_t->counting) {
-        curInt = timearr[test_arr_index++];
+        //curInt = timearr[test_arr_index++];
 
         uint16_t sd_read_test = 0;
         uint8_t sd_r_lsb = 0, sd_r_msb = 0;
@@ -357,7 +358,7 @@ void get_interval(dispStruct *dispData_t)
         sd_read_data(&sd_r_lsb);
 
         
-        sd_read_test  = (((uint16_t)sd_r_msb << 8) | sd_r_lsb);
+        curInt  = (((uint16_t)sd_r_msb << 8) | sd_r_lsb);
 
         ESP_LOGI(TAG, "disp_test_next_int: %u", (unsigned int)sd_read_test);
         

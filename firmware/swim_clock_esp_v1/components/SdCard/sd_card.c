@@ -131,7 +131,7 @@ esp_err_t sd_write_data(uint8_t *interval_in)
         return ESP_FAIL;
     }
     fwrite(interval_in, sizeof(uint8_t), 1, f);
-    ESP_LOGI(TAG, "%u", (unsigned int)*interval_in);
+    ESP_LOGI(TAG, "Write byte: %u", (unsigned int)*interval_in);
     position++;
 
     fclose(f);
@@ -148,10 +148,11 @@ esp_err_t sd_read_data(uint8_t *interval_out)
     FILE *f = fopen(path, "rb");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open SD for reading");
+        *interval_out = 0;
         return ESP_FAIL;
     }
 
-    if (position == 1) {
+    if (position == 0) { //changed from 1 6/29
         *interval_out = 0;
         return ESP_OK;
     }
